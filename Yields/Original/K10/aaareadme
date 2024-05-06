@@ -1,0 +1,55 @@
+The file "table_a1.txt" contains stellar structure 
+model data during the Asymptotic Giant Branch phase for
+the new models described in Karakas (2009, MNRAS).
+
+Each file contains:
+
+Header which lists the initial mass and metallicity of the model.
+
+1) pulse number 
+2) the core mass, Mcore (Msun)
+3) maximum mass of the intershell convection zone, M_csh (Msun)
+4) duration of intershell convection, t_csh (years)
+5) mass dredged into the envelope, D_dredge (Msun)
+6) lambda
+7) lambda_dup defined by Goriely & Mowlavi (= lambda x (DMh/Mpulse) where
+ 	Mpulse is the maximum mass of the intershell convection zone, given in column 2
+8) maximum temperature in the He-shell, THeshell (K)
+9) maximum temperature at the base of the convective envelope during the
+	previous interpulse period, Tbce (K)
+10) maximum temperature in the H-shell during the previous interpulse period, THshell (K)
+11) interpulse period (years) - note that the first entry is set to zero
+12) the total mass, Mtot (Msun)
+13) maximum radiated luminosity during the previous interpulse period, MaxL (Lsun)
+14) maximum He-luminosity during a thermal pulse, MaxLHe (Lsun)
+15) maximum stellar radius during the previous interpulse period (Rsun)
+16) The bolometric luminosity
+17) Effective temperature (Kelvin)
+
+All units are in solar units except temperatures, which are in kelvin and
+times, which are in years.
+
+------------------------------------------------------------------------------------------
+
+The stellar yields are provided in six seperate files:
+    1) table_a2.txt
+    2) table_a3.txt
+    3) table_a4.txt
+    4) table_a5.txt
+    5) table_a6.txt
+
+Each file contains:
+
+Header which lists the initial mass and metallicity of the model, and
+the final core mass.
+
+
+1) species i
+2) atomic mass of the species i
+3) net yield (Msun)
+4) mass of species i lost in the wind (Msun)
+5) mass of species i initially present in the wind (Msun)
+6) the average abundance of species i in the wind (mass fraction)
+7) initial mass fraction of species i (mass fraction)
+8) production factor, f = log10( average abundance of i / initial abundance ) 
+

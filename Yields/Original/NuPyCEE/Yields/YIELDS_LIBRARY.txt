@@ -1,0 +1,262 @@
+############################################################
+####### Library structure & details incl. references ######
+############################################################
+
+AGB + massive stars
+
+	NuGrid:
+	        Tables:
+        	        agb_and_massive_stars_nugrid_MESAonly_fryer12delay.txt
+        	        agb_and_massive_stars_nugrid_MESAonly_fryer12rapid.txt 
+			agb_and_massive_stars_nugrid_MESAonly_fryer12mix.txt
+        	        agb_and_massive_stars_nugrid_MESAonly_ye.txt
+			agb_and_massive_stars_nugrid_MESAonly_fryer12delay_wind_preexp.txt
+			
+
+       		References: Ritter et al., in prep
+                   	    Pignatari et al. 2016, http://adsabs.harvard.edu/abs/2016ApJS..225...24P
+
+
+	Combined yield set of Portinari et al. and Marigo: !!Needs confirmation
+
+		Use net yields of Portinari and Marigo.
+		To use net yields input the following parameter are needed: yield_interp_st='wiersma', netyields_on_st=True and wiersmamod_st=True
+		Net yields with masses up to 7Msun are from Marigo, above those of Portinari are taken.  
+		Only isotopes are selected which are available in both yield sets and go up to Fe.
+
+		Tables:
+			Ritter et al. 2017, In table Z=0.0127,0.004 based on Z=0.019 and Z=0.004 yields from Margio and Z=0.02 and Z=0.004 yields from Portinari.
+			Initial masses go from the lowest mass available up to 100Msun. 		 
+				agb_and_massive_stars_portinari98_marigo01.txt	
+			Table with Z=0.004,0.008,0.02 based on Z=0.019 and Z=0.008, 0.004 yields from Margio and Z=0.02,0.008,0.004 yields from Portinari	
+			All initial masses available are taken which go up to 1000Msun.
+			100Msun at Z=0.008 not available and replaced with 120Msun.
+			The 60Msun at Z=0.004 is not available and replaced with the 40Msun.
+			For uniform grid use 1, 1.65,2.0, 2.2, 2.5, 3.0, 3.5,4.0, 4.5, 5.0 and the closest available mass.
+				agb_and_massive_stars_portinari98_marigo01_gce2.txt
+
+			Yield set ID M01P98 in Ritter et al.  2017.
+				agb_and_massive_stars_portinari98_marigo01_net_yields_all.txt
+
+
+		References: Marigo et al. 2001, http://ukads.nottingham.ac.uk/abs/2001A%26A...370..194M
+			    Portinari et al. 1998, http://ukads.nottingham.ac.uk/abs/1998A%26A...334..505P
+
+
+	F.R.U.I.T.Y., Cristallo et al.
+ 
+		AGB yields are from FRUITY and massive star yields (delayed explosion) from NuGrid. Lifetimes for AGB models 
+		were taken from NuGrid. Note NuGrid models are based on alpha-enhanced initial abundances 
+		at Z=0.006 and Z=0.001 while FRUITY models are not. 
+		Note: Adjust the yield mass range to imf_yields_range=[1.3,30].
+
+		Tables:
+
+			AGB yields are from FRUITY and massive star yields (delayed explosion) from NuGrid. Lifetimes for AGB models 
+			were taken from NuGrid. Note NuGrid models are based on alpha-enhanced initial abundances 
+			at Z=0.006 and Z=0.001 while FRUITY models are not. 
+			Note: Adjust the yield mass range to imf_yields_range=[1.3,30].
+			Available is Z=0.02,0.01,0.006,0.001,Z=0.0001
+				agb_and_massive_stars_nugrid_FRUITY.txt
+			AGB yields are from FRUITY and massive star yields are from Kobayashi et al 2016 (see below.).
+			Yield set ID C15K06 in Ritter et al. 2017.
+				agb_and_massive_stars_FRUITY_K06.txt				
+
+		References: 
+			
+			Cristallo et al. 2016, https://arxiv.org/abs/1610.05475
+			Cristallo et al. 2015, http://adsabs.harvard.edu/abs/2015ApJS..219...40C
+			Data from fruity.oa-teramo.inaf.it/modelli.pl
+
+
+	Karakas et al. 2010
+
+
+		
+		Table:
+
+			AGB yields from Karakas10 and massive star yields (delayed explosion) from NuGrid.
+			Lifetimes were not available for 2Msun at Z=0.004,0.008 and were supplied from 1.9Msun cases.
+				agb_and_massive_stars_nugrid_K10.txt
+			
+			AGB yields from Karaks and massive star yields from Kobayashi06.					
+			The yields of supernova and hypernova are combined 50% to 50% when hypernova yields are available.	
+                        Yield set ID K10K06 in Ritter et al. 2017.	
+			agb_and_massive_stars_K10_K06.txt
+
+		References:
+			Karakas et al. 2010, http://adsabs.harvard.edu/abs/2010MNRAS.403.1413K	
+
+	PoP III stars by Heger et al. 2010. 
+
+		popIII_heger.txt contains models with S4 piston, explosion energy of 1.2B and 
+		no mixing (published apj300379t8_mrt.txt).
+
+		Tables:
+			popIII_heger10.txt 
+
+		References: Heger et al. 2010, http://ukads.nottingham.ac.uk/abs/2010ApJ...724..341H
+
+
+	Massive stars by Kobayashi et al. 2006
+
+		The yield table contains massive star yields from Kobayashi06  and complementing 
+		AGB yields from NuGrid. AGB yields at Z=0.004 correspond to NuGrid yields at Z=0.006. 
+		The yields of supernova and hypernova are combined 50% to 50% when hypernova yields are available.		
+
+		Tables:
+			The yield table contains massive star yields from Kobayashi06  and complementing 
+			AGB yields from NuGrid. AGB yields at Z=0.004 correspond to NuGrid yields at Z=0.006. 
+			The yields of supernova and hypernova are combined 50% to 50% when hypernova yields are available.		
+				agb_and_massive_stars_nugrid_K06.txt
+
+			AGB yields from Karaks and massive star yields from Kobayashi06.				
+			The yields of supernova and hypernova are combined 50% to 50% when hypernova yields are available.		
+	
+				agb_and_massive_stars_K10_K06.txt
+
+		References: Kobayashi et al. 2006, http://ukads.nottingham.ac.uk/abs/2006ApJ...653.1145K 
+			
+	Massive stars by Nomoto et al. 2013
+
+
+		agb_and_massive_stars_nugrid_N13.txt:
+		     The yield table contains massive star yields from the compilation by Nomoto et al. 2013.
+		     Complemented with AGB stars from NuGrid. AGB yields at Z=0.004 and Z=0.008 correspond to NuGrid yields at Z=0.006.
+		     The yields of supernova and hypernova are combined 50% to 50% when hypernova yields are available.		
+	        popIII_N13.txt:
+		     The yield table contains PopIII massive stars which undergo SN, HN and PISN.
+		     The yields of supernova and hypernova are combined 50% to 50% when hypernova yields are available.
+		     PISN come from Umeda et al. 2002 (see Nomoto et al. 2013).
+
+		Tables:
+			agb_and_massive_stars_nugrid_N13.txt
+			popIII_N13.txt
+
+		References:
+
+			http://adsabs.harvard.edu/abs/2013ARA%26A..51..457N
+			http://star.herts.ac.uk/~chiaki/works/YIELD_CK13.DAT (Yields Table 13 in Nomoto et al. 2013)
+
+SNIa:
+
+	Seitenzahl et. al 2013:
+
+		Metallicit-dependend yields based on 3D delayed-detonation models
+
+		Tables:
+			sn1a_ivo13_stable_z.txt
+			sn1a_ivo13_unstable_z.txt
+			sn1a_ivo13_mix_z.txt
+			
+		References:
+			Seitenzahl et al. 2013, http://ukads.nottingham.ac.uk/abs/2013MNRAS.429.1156S		
+
+	Thielemann et al. 2003: !!Needs confirmation
+		
+		Tables:
+			sn1a_t03.txt
+		
+		References:
+			Thielemann et al. 2003, http://ukads.nottingham.ac.uk/abs/2003fthp.conf..331T
+
+	Iwamoto et al. 1999:
+		
+		Tables:
+			sn1a_i99_CDD1.txt
+			sn1a_i99_CDD2.txt
+			sn1a_i99_W7.txt
+		
+		References:
+			Iwamoto et al. 1999 http://adsabs.harvard.edu/abs/1999ApJS..125..439I
+		
+	Thielemann et al. 1986:
+
+		Tables:
+			sn1a_t86.txt
+
+		References:
+			Tielemann et al. 1986, http://ukads.nottingham.ac.uk/abs/1986A%26A...158...17T 
+
+NS-NS and BH-NS mergers:
+
+	Rosswog et al. 2014:
+
+		Tables:
+			r_process_rosswog_2014.txt
+			Can be read in with variable nsmerger_table and bhnsmerger_table.
+	
+		References:
+			Rosswog et al. 2014, http://ukads.nottingham.ac.uk/abs/2014MNRAS.439..744R	
+
+	Arnould et al. 2007:
+
+		Tables:
+			r_process_arnould_2007.txt
+			Can be read in with variable nsmerger_table and bhnsmerger_table.
+	
+		References:
+			Arnould et al. 2007, http://adsabs.harvard.edu/abs/2007PhR...450...97A
+
+MHD Jets: !!Needs confirmation
+
+	N. Nishimura et al. 2015:
+		
+		Calculation magnetorotational supernovae (MR-SNe)
+		Can be read in with variable extra_source_table.
+
+		Tables:
+	    		mhd_jet_NTT_prompt.txt
+    			mhd_jet_NTT_delayed.txt
+			
+
+
+CCSN neutrino-driven winds: !!Needs confirmation
+
+	N. Nishimura:
+
+		Pseud-proto-neutron star winds (using an analytic expansion method)
+		trajectories are based on analytic models
+
+   		- 001 is S = 150 and others are S = 400
+    		- Initial abundances at the end of NSE (T9=9) are given as
+       		 X(proton) = Ye,  X(neutron) = 1 - Ye, and X(others) = 0
+		- Setup:
+                 	 	Ye      S
+        	 	#001   0.45    150
+         		#002   0.45    400
+         		#003   0.40    150
+         		#004   0.35    150
+         		#005   0.30    150
+
+		Tables:
+			ndw_wind_expand.001.txt
+			ndw_wind_expand.002.txt	
+			ndw_wind_expand.003.txt
+			ndw_wind_expand.004.txt
+			ndw_wind_expand.005.txt
+
+		References:
+			private communication				
+	
+Big Bang abundances:
+
+
+	Coc et al.:
+
+		Mass fractions.
+
+		Tables:
+			bb_uzan13.txt
+	
+		References: Coc et al. 2013, http://ukads.nottingham.ac.uk/abs/2013arXiv1307.6955C
+		
+	Walker et al.:
+
+		Tables: 
+			bb_walker91.txt	
+
+		References: Walker et al. 1991, http://ukads.nottingham.ac.uk/abs/1991ApJ...376...51W
+			    as applied in Timmes et al., 1995, http://ukads.nottingham.ac.uk/abs/1995ApJS...98..617T
+
+
