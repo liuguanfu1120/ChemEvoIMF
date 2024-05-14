@@ -9,6 +9,8 @@ It contains
 1. the element names,
 2. the atomic weights of the elements,
 3. the solar abundances of the elements.
+4. the solar metallicity.
+5. the minimum and maximum mass of a star in solar mass.
 
 """
 import numpy as np

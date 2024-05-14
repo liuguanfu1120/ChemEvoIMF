@@ -8,6 +8,7 @@ Description: Define some utilities for the chemical evolution model, which inclu
 - 1. The primordial gas class.
 - 2. The mass lifetime relation.
 - 3. The IMF class
+- 4. The SNIa class
 """
 
 import constants
@@ -199,7 +200,7 @@ def mass_to_lifetime(mass, Z):
     mass: float
         The mass of the star in the unit of solar mass.
     Z: float
-        The metallicity of the star.
+        The initial metallicity of the star.
     
     Returns
     -------
@@ -232,7 +233,7 @@ def lifetime_to_mass(t, Z):
     t: float
         The lifetime of the star in the unit of year.
     Z: float
-        The metallicity of the star.
+        The initial metallicity of the star.
     """
     # The keys of lifetime dict (except the key "Mini")
     Z_list = [key for key in lifetime.keys() if 'Z=' in key]
@@ -703,7 +704,9 @@ class SNIa:
         """
         The original constraint on the rate of SNIa per stellar mass from Maoz & Mannucci (2012),
         https://ui.adsabs.harvard.edu/abs/2012PASA...29..447M/abstract
-        Namely, it has not been calibrated to the adotped IMF.
+        Maoz & Mannucci (2012) adoptedthe diet Salpeter IMF.
+        Within this function, it has not been calibrated to the adotped IMF.
+        The calibration will be done in rate().
 
         Parameters
         ----------
@@ -718,10 +721,16 @@ class SNIa:
         """
         if t<4e7:
             # t<40 Myr
-            rate = 0.0
+            y = 0.0
         else:
-            rate = 4e-13*(t/1e9)**(-1)
-        return rate
+            y = 4e-13*(t/1e9)**(-1)
+        # 4e-13 is used to normalize the intergral from 40 Myr to 10 Gyr to be 2.2e-3 Msun^{-1}.
+        # Note that there no need to implement a cutoff when t>10 Gyr, 
+        # for the reason that the uncertainty of the observational result is 50% (see Table 1 of Maoz & Mannucci 2012).
+        # The uncertainty due the cutoff is relatively small.
+        # For simplicity, we do not implement the cutoff when t>10 Gyr.
+        # There is also no cutoff in the code of Yan et al. (2019), https://www.aanda.org/10.1051/0004-6361/201936029.
+        return y
 
 
     def rate(self, t):
@@ -742,8 +751,8 @@ class SNIa:
             The rate of SNIa per stellar mass.
             The unit is 1/yr/solar mass.
         """
-        rate = self._rate(t)*self.p
-        return rate
+        y = self._rate(t)*self.p
+        return y
     
 
     def number(self, Mstar, tmin, tmax):
@@ -766,7 +775,6 @@ class SNIa:
         """
         N = Mstar*quad(self.rate, tmin, tmax)[0]
         return N
-
 
 
 ###### Get the rate of SNIa per stellar mass ######
