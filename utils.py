@@ -358,7 +358,8 @@ class IMF:
         m: float
             The mass of the star
         """
-        if m<constants.Mstar_min or m>constants.Mstar_max:
+        if m<0.1 or m>100:
+            # The mass range of Salpeter IMF is [0.1, 100] solar mass.
             return 0.0
             # Do not return 0, or np.vectorize will assume the return value is an integer
         else:
@@ -700,6 +701,10 @@ class SNIa:
         p_numerator = (quad(imf, 1.5, 8)[0])**2/\
                         (quad(imf, 0.08, 150)[0]*quad(lambda m: m*imf(m), 0.08, 150)[0])
         self.p = p_numerator/p_denominator
+        Denominator=4.819420e-04
+        Numerator=1.575560e-04
+        # self.p1 is taken from Yan's code
+        self.p1 = Numerator/Denominator
     def _rate(self, t):
         """
         The original constraint on the rate of SNIa per stellar mass from Maoz & Mannucci (2012),
@@ -751,7 +756,9 @@ class SNIa:
             The rate of SNIa per stellar mass.
             The unit is 1/yr/solar mass.
         """
-        y = self._rate(t)*self.p
+        # y = self._rate(t)*self.p
+        # self.p1 is taken from Yan's code
+        y = self._rate(t)*self.p1
         return y
     
 

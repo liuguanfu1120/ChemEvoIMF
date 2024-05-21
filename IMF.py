@@ -137,7 +137,8 @@ class IMF:
         m: float
             The mass of the star
         """
-        if m<constants.Mstar_min or m>constants.Mstar_max:
+        if m<0.1 or m>100:
+            # The mass range of Salpeter IMF is [0.1, 100] solar mass.
             return 0.0
             # Do not return 0, or np.vectorize will assume the return value is an integer
         else:
