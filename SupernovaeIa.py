@@ -17,6 +17,22 @@ Define the SNIa class
 
 from scipy.integrate import quad
 from IMF import IMF
+import constants
+
+# Calculate the denominator of the calibration factor
+# to avoid the repeated calculation in the SNIa class.
+imf_diet = IMF(IMF_type='DietSalpeter').imf  # The IMF function of the diet Salpeter IMF.
+p_denominator = (quad(imf_diet, constants.SNIa_min, constants.SNIa_max)[0])**2/\
+            (quad(imf_diet, constants.Mstar_min, constants.Mstar_max)[0]*\
+            quad(lambda m: m*imf_diet(m), constants.Mstar_min, constants.Mstar_max)[0])
+# Calculate the numerator of the calibration factor
+# to avoid the repeated calculation in the SNIa class.
+p_numerators = { }
+for imf_type in ['Kroupa', 'Salpeter', 'Chabrier', 'DietSalpeter']:
+    imf = IMF(IMF_type=imf_type).imf
+    p_numerators[imf_type] = (quad(imf, constants.SNIa_min, constants.SNIa_max)[0])**2/\
+                (quad(imf, constants.Mstar_min, constants.Mstar_max)[0]*\
+                quad(lambda m: m*imf(m), constants.Mstar_min, constants.Mstar_max)[0])
 
 class SNIa:
     """
@@ -24,7 +40,7 @@ class SNIa:
     """
 
 
-    def __init__(self, imf):
+    def __init__(self, imf, IMF_type=None, p_preset=None):
         """
         Initialize the class of the rate
         
@@ -33,7 +49,18 @@ class SNIa:
         imf: function
             The IMF function.
             It is used to conduct the calibration
-        
+        IMF_type: str, optional
+            The default is None.
+            It should correspond to the IMF function.
+            If provided, the calibration factor will be p_numerator[IMF_type]/p_denominator,
+            which will speed up the calculation.
+            If not provided, the calibration factor will be calculated from the IMF function.
+        p_preset: float, optional
+            The default is None.
+            If provided, the calibration factor will be p_preset.
+            The imf and IMF_type will be ignored.
+            I do not recommend you to set it unless you know what you are doing.
+            
         Returns
         -------
         self.rate: function
@@ -58,12 +85,28 @@ class SNIa:
         # Here we do not truncate the number of SNIa to be an integer.
         """
         self.imf = imf
-        imf_diet = IMF(IMF_type='DietSalpeter').imf  # The IMF function of the diet Salpeter IMF.
-        p_denominator = (quad(imf_diet, 1.5, 8)[0])**2/\
-                        (quad(imf_diet, 0.08, 150)[0]*quad(lambda m: m*imf_diet(m), 0.08, 150)[0])
-        p_numerator = (quad(imf, 1.5, 8)[0])**2/\
-                        (quad(imf, 0.08, 150)[0]*quad(lambda m: m*imf(m), 0.08, 150)[0])
-        self.p = p_numerator/p_denominator
+        constants.SNIa_min = constants.SNIa_min
+        constants.SNIa_max = constants.SNIa_max
+        constants.Mstar_min = constants.Mstar_min
+        constants.Mstar_max = constants.Mstar_max
+        if p_preset is not None:
+            self.p = p_preset
+            if IMF_type is not None:
+                print('Warning: The IMF_type is ignored.')
+                print('The calibration factor of SNIa rate is set to be the provided value.')
+            if imf is not None:
+                print('Warning: The IMF function is ignored.')
+                print('The calibration factor of SNIa rate is set to be the provided value.')
+        else:
+            if IMF_type in list(p_numerators.keys()):
+                p_numerator = p_numerators[IMF_type]
+            else:
+                p_numerator = (quad(imf, constants.SNIa_min, constants.SNIa_max)[0])**2/\
+                        (quad(imf, constants.Mstar_min, constants.Mstar_max)[0]*\
+                        quad(lambda m: m*imf(m), constants.Mstar_min, constants.Mstar_max)[0])
+            self.p = p_numerator/p_denominator
+
+
     def _rate(self, t):
         """
         The original constraint on the rate of SNIa per stellar mass from Maoz & Mannucci (2012),

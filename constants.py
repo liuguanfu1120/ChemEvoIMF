@@ -404,13 +404,27 @@ for key, arr in abund_tables.items():
 
 Mstar_min = 0.08  # The minimum mass of a star in solar mass.
 Mstar_max = 150.0  # The maximum mass of a star in solar mass.
-
+SNcc_min = 8.0  # The minimum mass of a star that can explode as a core-collapse supernova in solar mass.
+SNcc_max = 150.0  # The maximum mass of a star that can explode as a core-collapse supernova in solar mass.
+SNIa_min = 1.5  # The minimum mass of a star that can explode as a type Ia supernova in solar mass.
+SNIa_max = 8.0  # The maximum mass of a star that can explode as a type Ia supernova in solar mass.
+AGB_min = 0.8  # The minimum mass of a star that can evolve into an asymptotic giant branch star 
+               # in solar mass (Oomen et al. 2019).
+AGB_max = 8.0  # The maximum mass of a star that can evolve into an asymptotic giant branch star in solar mass.
+               # in solar mass (Oomen et al. 2019).
 __all__ = [
     'elem_names',
     'atomic_weights',
     'abund_tables',
     'Z_sun',
     'Mstar_min',
-    'Mstar_max'
+    'Mstar_max',
+    # 'SNcc_max',
+    'SNcc_min',
+    'SNIa_min',
+    'SNIa_max',
+    'AGB_min',
+    'AGB_max'
+
 ]
 # The solar abundance tables have been checked on April 24, 2024.

@@ -33,12 +33,12 @@ class Primordial_gas:
             However, you can also set it to be larger than 1e-4, it will raise a warning.
         input_array: numpy array or None
             If it is None, use the default primordial gas from the table II in Cyburt et al. (2016).
-            If it is a numpy array, it shuld have a shape of (32, ).
+            If it is a numpy array, it shuld have a shape of (len(constants.elem_names), ).
             input_array[0]: should be zero, which is just to make the index start from 1 and should NOT be used.
-            input_array[1:31]: the mass fraction of H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl,
+            input_array[1:len(constants.elem_names)-1]: the mass fraction of H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl,
             Ar, K, Ca, Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, and Zn. Namely, input_array[i] is the ith element mass fraction.
-            input_array[31]: the mass fraction of the rest elements (31th and after) in the primordial gas, should be 
-            a small number.
+            input_array[len(constants.elem_names)-1]: the mass fraction of the rest elements ((len(constants.elem_names)-1)th and after) 
+            in the primordial gas, should be a small number.
             input_array will be normalized by input_array[1:] = input_array[1:]/input_array[1:].sum().
 
             Z_0==None and input_array==None: use the default primordial gas.
@@ -54,7 +54,7 @@ class Primordial_gas:
         self.primor_gas will contain the following keys:
         'Gas': numpy array
             The mass of different elements in the primordial gas in the unit of solar mass.
-            The shape is (32, ), where the first element is zero, which is just to make the index start from 1.
+            The shape is (len(constants.elem_names), ), where the first element is zero, which is just to make the index start from 1.
         'H': float
             The mass of H in the primordial gas in the unit of solar mass.
         'He': float
@@ -65,7 +65,7 @@ class Primordial_gas:
         'Zn': float
             The mass of Zn in the primordial gas in the unit of solar mass.
         'Other': float
-            The mass of the rest elements (31th and after) in the primordial gas in the unit of solar mass.
+            The mass of the rest elements ((len(constants.elem_names)-1)th and after) in the primordial gas in the unit of solar mass.
         
         Examples
         --------
@@ -152,8 +152,8 @@ class Primordial_gas:
             self.primor_gas.pop('Z')
 
         else:
-            if len(input_array) != 32:
-                raise ValueError("The length of the input_array should be 32, but it is not.")
+            if len(input_array) != len(constants.elem_names):
+                raise ValueError("The length of the input_array should be %d, but it is not."%len(constants.elem_names))
             # input_array is not None and pre-set, use the input_array as the primordial gas.
             input_array[0] = 0  # The first element should be zero, which is just to make the index start from 1.
             input_array = input_array/input_array[1:].sum()
@@ -189,13 +189,14 @@ class Primordial_gas:
         Parameters
         ----------
         abund_table: numpy array
-        It should be an array with the shape (32, ), which contains the solar abundances of the first 30 elements.
+        It should be an array with the shape (len(constants.elem_names), ), which contains the solar abundances of the first 30 elements.
         The first element in the array should be ZERO, which is just to make the index start from 1.
         For more details, please refer to the module constants.py.
         """
         if self.input_array is not None:
             print("Warning: The input array is pre-set, which is not recommended.")
             print("Nothing will be done in this function.")
+            print("Just use the input array as the primordial gas.")
             return self.primor_gas
         if self.Z_0 is None:
             raise ValueError("The primordial metallicity is should be pre-set, but it is not.")
@@ -207,7 +208,7 @@ class Primordial_gas:
             # Such as O/Fe is the same as the solar abundance, but the total mass fraction of the metals is Z_0.
         self.primor_gas.pop('Z_0')  # Remove the primordial metallicity Z_0 without lithium from the dictionary.
         self.primor_gas['Gas'] = np.zeros(len(constants.elem_names))  # The mass of the primordial gas in the unit of solar mass.
-        for i in range(1, 31):
+        for i in range(1, len(constants.elem_names)-1):
             self.primor_gas['Gas'][i] = self.primor_gas[constants.elem_names[i]]
             # The index starts from 1, so the first element is ZERO.
         return self.primor_gas
