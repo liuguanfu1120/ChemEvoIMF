@@ -21,7 +21,7 @@ class InterpolateYields:
     Therefore, the interpolation is only conducted with respect to the metallicity.
     The interpolation with respect to the mass is linear interpolation.
     """
-    def __init__(self, dfs, kind='linear-linear'):
+    def __init__(self, dfs, kind='linear-log'):
         """
         Initialize the class that enables the interpolation of the yields.
 
@@ -36,7 +36,7 @@ class InterpolateYields:
             dfs['AGB+SNcc']['Z=0.0001'] is a DataFrame
         kind : str
             The kind of interpolation. It should be in ['linear-linear', 'linear-log', 'log-linear', 'log-log', 'nearest', 'TNG-like'].
-            The default is 'linear-linear'.
+            The default is 'linear-log'.
             For linear-linear interpolation:
                 Y = Y_low + (Y_high - Y_low)/(Z_high - Z_low)*(ZGas - Z_low)
                 Y and Z are linearly interpolated.
@@ -211,8 +211,8 @@ class InterpolateYields:
             Zindex['SNIa']['high'] = Zyield['SNIa'].argmax()
             Zindex['SNIa']['low'] = Zindex['SNIa']['high']
         else:
-            Zindex['SNIa']['high'] = np.where(Zyield['SNIa']==Zyield['SNIa'][Zyield['SNIa']>ZGas].min(),)[0][0]
-            Zindex['SNIa']['low']  = np.where(Zyield['SNIa']==Zyield['SNIa'][Zyield['SNIa']<ZGas].max(),)[0][0]
+            Zindex['SNIa']['high'] = np.where(Zyield['SNIa']==Zyield['SNIa'][Zyield['SNIa']>=ZGas].min(),)[0][0]
+            Zindex['SNIa']['low']  = np.where(Zyield['SNIa']==Zyield['SNIa'][Zyield['SNIa']<=ZGas].max(),)[0][0]
         Z_low = Zyield['SNIa'][Zindex['SNIa']['low']]
         Z_high = Zyield['SNIa'][Zindex['SNIa']['high']]
         # In case of Z_low is zero, we set Z_low = 1e-10.
@@ -254,8 +254,8 @@ class InterpolateYields:
             Zindex['SNIa']['high'] = Zyield['SNIa'].argmax()
             Zindex['SNIa']['low'] = Zindex['SNIa']['high']
         else:
-            Zindex['SNIa']['high'] = np.where(Zyield['SNIa']==Zyield['SNIa'][Zyield['SNIa']>ZGas].min(),)[0][0]
-            Zindex['SNIa']['low']  = np.where(Zyield['SNIa']==Zyield['SNIa'][Zyield['SNIa']<ZGas].max(),)[0][0]
+            Zindex['SNIa']['high'] = np.where(Zyield['SNIa']==Zyield['SNIa'][Zyield['SNIa']>=ZGas].min(),)[0][0]
+            Zindex['SNIa']['low']  = np.where(Zyield['SNIa']==Zyield['SNIa'][Zyield['SNIa']<=ZGas].max(),)[0][0]
         Z_low = Zyield['SNIa'][Zindex['SNIa']['low']]
         Z_high = Zyield['SNIa'][Zindex['SNIa']['high']]
         # In case of Z_low is zero, we set Z_low = 1e-10.
@@ -297,8 +297,8 @@ class InterpolateYields:
             Zindex['SNIa']['high'] = Zyield['SNIa'].argmax()
             Zindex['SNIa']['low'] = Zindex['SNIa']['high']
         else:
-            Zindex['SNIa']['high'] = np.where(Zyield['SNIa']==Zyield['SNIa'][Zyield['SNIa']>ZGas].min(),)[0][0]
-            Zindex['SNIa']['low']  = np.where(Zyield['SNIa']==Zyield['SNIa'][Zyield['SNIa']<ZGas].max(),)[0][0]
+            Zindex['SNIa']['high'] = np.where(Zyield['SNIa']==Zyield['SNIa'][Zyield['SNIa']>=ZGas].min(),)[0][0]
+            Zindex['SNIa']['low']  = np.where(Zyield['SNIa']==Zyield['SNIa'][Zyield['SNIa']<=ZGas].max(),)[0][0]
         Z_low = Zyield['SNIa'][Zindex['SNIa']['low']]
         Z_high = Zyield['SNIa'][Zindex['SNIa']['high']]
         # In case of Z_low is zero, we set Z_low = 1e-10.
@@ -340,8 +340,8 @@ class InterpolateYields:
             Zindex['SNIa']['high'] = Zyield['SNIa'].argmax()
             Zindex['SNIa']['low'] = Zindex['SNIa']['high']
         else:
-            Zindex['SNIa']['high'] = np.where(Zyield['SNIa']==Zyield['SNIa'][Zyield['SNIa']>ZGas].min(),)[0][0]
-            Zindex['SNIa']['low']  = np.where(Zyield['SNIa']==Zyield['SNIa'][Zyield['SNIa']<ZGas].max(),)[0][0]
+            Zindex['SNIa']['high'] = np.where(Zyield['SNIa']==Zyield['SNIa'][Zyield['SNIa']>=ZGas].min(),)[0][0]
+            Zindex['SNIa']['low']  = np.where(Zyield['SNIa']==Zyield['SNIa'][Zyield['SNIa']<=ZGas].max(),)[0][0]
         Z_low = Zyield['SNIa'][Zindex['SNIa']['low']]
         Z_high = Zyield['SNIa'][Zindex['SNIa']['high']]
         # In case of Z_low is zero, we set Z_low = 1e-10.
@@ -427,8 +427,8 @@ class InterpolateYields:
                 Zindex['SNIa']['high'] = Zyield['SNIa'].argmax()
                 Zindex['SNIa']['low'] = Zindex['SNIa']['high']
             else:
-                Zindex['SNIa']['high'] = np.where(Zyield['SNIa']==Zyield['SNIa'][Zyield['SNIa']>ZGas].min(),)[0][0]
-                Zindex['SNIa']['low']  = np.where(Zyield['SNIa']==Zyield['SNIa'][Zyield['SNIa']<ZGas].max(),)[0][0]
+                Zindex['SNIa']['high'] = np.where(Zyield['SNIa']==Zyield['SNIa'][Zyield['SNIa']>=ZGas].min(),)[0][0]
+                Zindex['SNIa']['low']  = np.where(Zyield['SNIa']==Zyield['SNIa'][Zyield['SNIa']<=ZGas].max(),)[0][0]
         else:
             print("The kind should be in ['linear-linear', 'linear-log', 'log-linear', 'log-log', 'nearest]")
             print("Return None!")
@@ -488,8 +488,8 @@ class InterpolateYields:
             Zindex['AGB+SNcc']['high'] = Zyield['AGB+SNcc'].argmax()
             Zindex['AGB+SNcc']['low'] = Zindex['AGB+SNcc']['high']
         else:
-            Zindex['AGB+SNcc']['high'] = np.where(Zyield['AGB+SNcc']==Zyield['AGB+SNcc'][Zyield['AGB+SNcc']>ZGas].min(),)[0][0]
-            Zindex['AGB+SNcc']['low']  = np.where(Zyield['AGB+SNcc']==Zyield['AGB+SNcc'][Zyield['AGB+SNcc']<ZGas].max(),)[0][0]
+            Zindex['AGB+SNcc']['high'] = np.where(Zyield['AGB+SNcc']==Zyield['AGB+SNcc'][Zyield['AGB+SNcc']>=ZGas].min(),)[0][0]
+            Zindex['AGB+SNcc']['low']  = np.where(Zyield['AGB+SNcc']==Zyield['AGB+SNcc'][Zyield['AGB+SNcc']<=ZGas].max(),)[0][0]
         Z_low = Zyield['AGB+SNcc'][Zindex['AGB+SNcc']['low']]
         Z_high = Zyield['AGB+SNcc'][Zindex['AGB+SNcc']['high']]
         # In case of Z_low is zero, we set Z_low = 1e-10.
@@ -528,8 +528,8 @@ class InterpolateYields:
             Zindex['AGB+SNcc']['high'] = Zyield['AGB+SNcc'].argmax()
             Zindex['AGB+SNcc']['low'] = Zindex['AGB+SNcc']['high']
         else:
-            Zindex['AGB+SNcc']['high'] = np.where(Zyield['AGB+SNcc']==Zyield['AGB+SNcc'][Zyield['AGB+SNcc']>ZGas].min(),)[0][0]
-            Zindex['AGB+SNcc']['low']  = np.where(Zyield['AGB+SNcc']==Zyield['AGB+SNcc'][Zyield['AGB+SNcc']<ZGas].max(),)[0][0]
+            Zindex['AGB+SNcc']['high'] = np.where(Zyield['AGB+SNcc']==Zyield['AGB+SNcc'][Zyield['AGB+SNcc']>=ZGas].min(),)[0][0]
+            Zindex['AGB+SNcc']['low']  = np.where(Zyield['AGB+SNcc']==Zyield['AGB+SNcc'][Zyield['AGB+SNcc']<=ZGas].max(),)[0][0]
         Z_low = Zyield['AGB+SNcc'][Zindex['AGB+SNcc']['low']]
         Z_high = Zyield['AGB+SNcc'][Zindex['AGB+SNcc']['high']]
         # In case of Z_low is zero, we set Z_low = 1e-10.
@@ -570,8 +570,8 @@ class InterpolateYields:
             Zindex['AGB+SNcc']['high'] = Zyield['AGB+SNcc'].argmax()
             Zindex['AGB+SNcc']['low'] = Zindex['AGB+SNcc']['high']
         else:
-            Zindex['AGB+SNcc']['high'] = np.where(Zyield['AGB+SNcc']==Zyield['AGB+SNcc'][Zyield['AGB+SNcc']>ZGas].min(),)[0][0]
-            Zindex['AGB+SNcc']['low']  = np.where(Zyield['AGB+SNcc']==Zyield['AGB+SNcc'][Zyield['AGB+SNcc']<ZGas].max(),)[0][0]
+            Zindex['AGB+SNcc']['high'] = np.where(Zyield['AGB+SNcc']==Zyield['AGB+SNcc'][Zyield['AGB+SNcc']>=ZGas].min(),)[0][0]
+            Zindex['AGB+SNcc']['low']  = np.where(Zyield['AGB+SNcc']==Zyield['AGB+SNcc'][Zyield['AGB+SNcc']<=ZGas].max(),)[0][0]
         Z_low = Zyield['AGB+SNcc'][Zindex['AGB+SNcc']['low']]
         Z_high = Zyield['AGB+SNcc'][Zindex['AGB+SNcc']['high']]
         # In case of Z_low is zero, we set Z_low = 1e-10.
@@ -612,8 +612,8 @@ class InterpolateYields:
             Zindex['AGB+SNcc']['high'] = Zyield['AGB+SNcc'].argmax()
             Zindex['AGB+SNcc']['low'] = Zindex['AGB+SNcc']['high']
         else:
-            Zindex['AGB+SNcc']['high'] = np.where(Zyield['AGB+SNcc']==Zyield['AGB+SNcc'][Zyield['AGB+SNcc']>ZGas].min(),)[0][0]
-            Zindex['AGB+SNcc']['low']  = np.where(Zyield['AGB+SNcc']==Zyield['AGB+SNcc'][Zyield['AGB+SNcc']<ZGas].max(),)[0][0]
+            Zindex['AGB+SNcc']['high'] = np.where(Zyield['AGB+SNcc']==Zyield['AGB+SNcc'][Zyield['AGB+SNcc']>=ZGas].min(),)[0][0]
+            Zindex['AGB+SNcc']['low']  = np.where(Zyield['AGB+SNcc']==Zyield['AGB+SNcc'][Zyield['AGB+SNcc']<=ZGas].max(),)[0][0]
         Z_low = Zyield['AGB+SNcc'][Zindex['AGB+SNcc']['low']]
         Z_high = Zyield['AGB+SNcc'][Zindex['AGB+SNcc']['high']]
         # In case of Z_low is zero, we set Z_low = 1e-10.
@@ -696,8 +696,8 @@ class InterpolateYields:
                 Zindex['AGB+SNcc']['high'] = Zyield['AGB+SNcc'].argmax()
                 Zindex['AGB+SNcc']['low'] = Zindex['AGB+SNcc']['high']
             else:
-                Zindex['AGB+SNcc']['high'] = np.where(Zyield['AGB+SNcc']==Zyield['AGB+SNcc'][Zyield['AGB+SNcc']>ZGas].min(),)[0][0]
-                Zindex['AGB+SNcc']['low']  = np.where(Zyield['AGB+SNcc']==Zyield['AGB+SNcc'][Zyield['AGB+SNcc']<ZGas].max(),)[0][0]
+                Zindex['AGB+SNcc']['high'] = np.where(Zyield['AGB+SNcc']==Zyield['AGB+SNcc'][Zyield['AGB+SNcc']>=ZGas].min(),)[0][0]
+                Zindex['AGB+SNcc']['low']  = np.where(Zyield['AGB+SNcc']==Zyield['AGB+SNcc'][Zyield['AGB+SNcc']<=ZGas].max(),)[0][0]
         else:
             print("The kind should be in ['linear-linear', 'linear-log', 'log-linear', 'log-log', 'nearest]")
             print("Return None!")

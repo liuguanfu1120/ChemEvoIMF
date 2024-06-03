@@ -117,6 +117,16 @@ class MassLifetime:
                         flag = False
                         print("The key 'lifetime' should be in the dictionary life[%s]."%key)
                         break
+                    argsort = lifetime[key]['Mini'].argsort()
+                    lifetime[key]['lifetime'] = lifetime[key]['lifetime'][argsort]
+                    lifetime[key]['Mini'] = lifetime[key]['Mini'][argsort]
+                    if (np.diff(lifetime[key]['lifetime'])).all()>0:
+                        # The lifetime of less massive stars should be longer.
+                        continue
+                    else:
+                        flag = False
+                        print("The lifetime of less massive stars should be longer.")
+                        print("Please check the mass lifetime relation of %s" % key)
 
         if lifetime is None:
             self.lifetime = default_lifetime
@@ -124,7 +134,6 @@ class MassLifetime:
             if flag:
             # flag is True if the format of the lifetime is correct.
                 self.lifetime = lifetime
-            
             else:
             # flag is False if the format of the lifetime is not correct. Use the default lifetime instead.
                 print("The format of the input lifetime is not correct. Use the default lifetime instead.")
@@ -132,7 +141,7 @@ class MassLifetime:
         self.mass_to_lifetime = np.vectorize(self._mass_to_lifetime, otypes=[np.float64])
         self.lifetime_to_mass = np.vectorize(self._lifetime_to_mass, otypes=[np.float64])
     
-    def _mass_to_lifetime(self, mass, Z):
+    def _mass_to_lifetime(self, mass, Z, kind='linear-log'):
         """
         Get the lifetime of the star with a certain mass and a certain metallicity.
 
@@ -142,7 +151,11 @@ class MassLifetime:
             The mass of the star in the unit of solar mass.
         Z: float
             The initial metallicity of the star.
-        
+        kind: str, optional
+            The kind of interpolation. It should be in 
+            ['linear-linear', 'linear-log', 'log-linear', 'log-log', 'nearest', 'TNG-like'].
+            The default is 'linear-log'.
+            For more details see InterpolateYields.py        
         Returns
         -------
         t: float
@@ -151,17 +164,77 @@ class MassLifetime:
         # The keys of lifetime dict (except the key "Mini")
         Z_list = [key for key in self.lifetime.keys() if 'Z=' in key]
         Z_float = np.array([float(a.replace("Z=", "")) for a in Z_list])
-        # Get the closest metallicity of the metallicity of the selecet stellar population
-        Z_index = np.abs(Z-Z_float).argmin()
-        Z_key = Z_list[Z_index]
-        # Linear interpolation or extrapolation of log10 t versus log10 Mini
-        interp = interpolate.interp1d(np.log10(self.lifetime[Z_key]['Mini']), np.log10(self.lifetime[Z_key]['lifetime']), 
-                                    kind=1, fill_value='extrapolate')
-        t = interp(np.log10(mass))
-        t = 10**t
+        Z_index = { }
+
+        if Z<=Z_float.min():
+            Z_index['low'] = Z_float.argmin()
+            Z_index['high'] = Z_index['low']
+        elif Z>=Z_float.max():
+            Z_index['low'] = Z_float.argmax()
+            Z_index['high'] = Z_index['low']
+        else:
+            Z_index['low'] = np.where(Z_float==Z_float[Z_float<=Z].max())[0][0]
+            Z_index['high'] = np.where(Z_float==Z_float[Z_float>=Z].min())[0][0]
+
+        Z_key = { }
+        Z_key['low'] = Z_list[Z_index['low']]
+        Z_key['high'] = Z_list[Z_index['high']]
+
+        if kind == 'nearest':
+            Z_index['low'] = np.abs(Z_float-Z).argmin()
+            Z_index['high'] = Z_index['low']
+            interp = interpolate.interp1d(np.log10(self.lifetime[Z_key['low']]['Mini']),
+                                          np.log10(self.lifetime[Z_key['low']]['lifetime']),
+                                          kind=1, fill_value='extrapolate')
+            t = interp(np.log10(mass))
+            t = 10**t
+            return t
+        else:
+            pass
+
+        if Z_key['low'] == Z_key['high']:
+            interp = interpolate.interp1d(np.log10(self.lifetime[Z_key['low']]['Mini']),
+                                          np.log10(self.lifetime[Z_key['low']]['lifetime']),
+                                          kind=1, fill_value='extrapolate')
+            t = interp(np.log10(mass))
+            t = 10**t
+            return t
+        else:
+            interp_low = interpolate.interp1d(np.log10(self.lifetime[Z_key['low']]['Mini']),
+                                              np.log10(self.lifetime[Z_key['low']]['lifetime']),
+                                              kind=1, fill_value='extrapolate')
+            interp_high = interpolate.interp1d(np.log10(self.lifetime[Z_key['high']]['Mini']),
+                                               np.log10(self.lifetime[Z_key['high']]['lifetime']),
+                                               kind=1, fill_value='extrapolate')
+            t_low = interp_low(np.log10(mass))
+            t_high = interp_high(np.log10(mass))
+            t_low = 10**t_low
+            t_high = 10**t_high
+        
+        Z_low = Z_float[Z_index['low']]
+        Z_high = Z_float[Z_index['high']]
+        # In case of Z_low is zero, we set Z_low = 1e-10.
+        Z_low = np.maximum(Z_low, 1e-10)
+        # In case of Z_high is zero, we set Z_high = 1e-10.
+        Z_high = np.maximum(Z_high, 1e-10)
+        
+        if kind == 'linear-linear':
+            t = t_low + (t_high-t_low)/(Z_high-Z_low)*(Z-Z_low)
+        elif kind == 'linear-log' or kind == 'TNG-like':
+            t = t_low + (t_high-t_low)/(np.log10(Z_high)-np.log10(Z_low))\
+                      * (np.log10(Z)-np.log10(Z_low))
+        elif kind == 'log-linear':
+            t = t_low**((Z_high-Z)/(Z_high-Z_low))*t_high**((Z-Z_low)/(Z_high-Z_low))
+        elif kind == 'log-log':
+            t = t_low**((np.log10(Z_high)-np.log10(Z))/(np.log10(Z_high)-np.log10(Z_low)))*\
+                t_high**((np.log10(Z)-np.log10(Z_low))/(np.log10(Z_high)-np.log10(Z_low)))
+        else:
+            print("The kind of interpolation is not supported.")
+            print("Please choose from ['linear-linear', 'linear-log', 'log-linear', 'log-log', 'nearest', 'TNG-like']")
+            return None
         return t
 
-    def _lifetime_to_mass(self, t, Z):
+    def _lifetime_to_mass(self, t, Z, kind='linear-log'):
         """
         Get the mass of the star with a certain lifetime and a certain metallicity.
         
@@ -171,18 +244,84 @@ class MassLifetime:
             The lifetime of the star in the unit of year.
         Z: float
             The initial metallicity of the star.
+        kind: str, optional
+            The kind of interpolation. It should be in 
+            ['linear-linear', 'linear-log', 'log-linear', 'log-log', 'nearest', 'TNG-like'].
+            The default is 'nearest'.
+            For more details see InterpolateYields.py
         """
         # The keys of lifetime dict (except the key "Mini")
         Z_list = [key for key in self.lifetime.keys() if 'Z=' in key]
         Z_float = np.array([float(a.replace("Z=", "")) for a in Z_list])
-        # Get the closest metallicity of the metallicity of the selecet stellar population
-        Z_index = np.abs(Z-Z_float).argmin()
-        Z_key = Z_list[Z_index]
-        # Linear interpolation or extrapolation of log10 M versus log10 t
-        interp = interpolate.interp1d(np.log10(self.lifetime[Z_key]['lifetime']), np.log10(self.lifetime[Z_key]['Mini']), 
-                                    kind=1, fill_value='extrapolate')
-        mass = interp(np.log10(t))
-        mass = 10**mass
+        Z_index = { }
+
+        if Z<=Z_float.min():
+            Z_index['low'] = Z_float.argmin()
+            Z_index['high'] = Z_index['low']
+        elif Z>=Z_float.max():
+            Z_index['low'] = Z_float.argmax()
+            Z_index['high'] = Z_index['low']
+        else:
+            Z_index['low'] = np.where(Z_float==Z_float[Z_float<=Z].max())[0][0]
+            Z_index['high'] = np.where(Z_float==Z_float[Z_float>=Z].min())[0][0]
+
+        Z_key = { }
+        Z_key['low'] = Z_list[Z_index['low']]
+        Z_key['high'] = Z_list[Z_index['high']]
+
+        if kind == 'nearest':
+            Z_index['low'] = np.abs(Z_float-Z).argmin()
+            Z_index['high'] = Z_index['low']
+            interp = interpolate.interp1d(np.log10(self.lifetime[Z_key['low']]['lifetime']),
+                                          np.log10(self.lifetime[Z_key['low']]['Mini']),
+                                          kind=1, fill_value='extrapolate')
+            mass = interp(np.log10(t))
+            mass = 10**mass
+            return mass
+        else:
+            pass
+
+        if Z_key['low'] == Z_key['high']:
+            interp = interpolate.interp1d(np.log10(self.lifetime[Z_key['low']]['lifetime']),
+                                          np.log10(self.lifetime[Z_key['low']]['Mini']),
+                                          kind=1, fill_value='extrapolate')
+            mass = interp(np.log10(t))
+            mass = 10**mass
+            return mass
+        else:
+            interp_low = interpolate.interp1d(np.log10(self.lifetime[Z_key['low']]['lifetime']),
+                                              np.log10(self.lifetime[Z_key['low']]['Mini']),
+                                              kind=1, fill_value='extrapolate')
+            interp_high = interpolate.interp1d(np.log10(self.lifetime[Z_key['high']]['lifetime']),
+                                               np.log10(self.lifetime[Z_key['high']]['Mini']),
+                                               kind=1, fill_value='extrapolate')
+            mass_low = interp_low(np.log10(t))
+            mass_high = interp_high(np.log10(t))
+            mass_low = 10**mass_low
+            mass_high = 10**mass_high
+
+        Z_low = Z_float[Z_index['low']]
+        Z_high = Z_float[Z_index['high']]
+        # In case of Z_low is zero, we set Z_low = 1e-10.
+        Z_low = np.maximum(Z_low, 1e-10)
+        # In case of Z_high is zero, we set Z_high = 1e-10.
+        Z_high = np.maximum(Z_high, 1e-10)
+        
+        if kind == 'linear-linear':
+            mass = mass_low + (mass_high-mass_low)/(Z_high-Z_low)*(Z-Z_low)
+        elif kind == 'linear-log' or kind == 'TNG-like':
+            mass = mass_low + (mass_high-mass_low)/(np.log10(Z_high)-np.log10(Z_low))\
+                   *(np.log10(Z)-np.log10(Z_low))
+        elif kind == 'log-linear':
+            mass = mass_low**((Z_high-Z)/(Z_high-Z_low))*mass_high**((Z-Z_low)/(Z_high-Z_low))
+        elif kind == 'log-log':
+            mass = mass_low**((np.log10(Z_high)-np.log10(Z))/(np.log10(Z_high)-np.log10(Z_low)))*\
+                   mass_high**((np.log10(Z)-np.log10(Z_low))/(np.log10(Z_high)-np.log10(Z_low)))
+        else:
+            print("The kind of interpolation is not supported.")
+            print("Please choose from ['linear-linear', 'linear-log', 'log-linear', 'log-log', 'nearest', 'TNG-like']")
+            return None
+        
         return mass
 
 

@@ -202,7 +202,7 @@ def GetZi2Zj(GasElement, Zi, Zj, solar_set, fill_value=None):
                constants.abund_tables.keys())
         return None
     Zi2Zj_solar = constants.abund_tables[solar_set][constants.elem_names.index(Zi)] / \
-                   constants.abund_tables[solar_set][constants.elem_names.index(Zj)]
+                  constants.abund_tables[solar_set][constants.elem_names.index(Zj)]
     mask = GasElement[:, constants.elem_names.index(Zj)] > 0
     mask = mask & (GasElement[:, constants.elem_names.index(Zi)] > 0)
     Zi2Zj = { }

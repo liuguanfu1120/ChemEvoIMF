@@ -21,9 +21,7 @@ import numpy as np
 import pandas as pd
 import sys
 sys.path.insert(0, './')
-import matplotlib.pyplot as plt
 from scipy.integrate import quad
-from scipy import interpolate
 import h5py
 from tqdm import tqdm
 import datetime
@@ -37,12 +35,13 @@ import constants
 from InterpolateYields import InterpolateYields
 
 def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, p_preset=None, mass_lifetime_file=None,
-            interp_kind="linear-linear", solar_set='Default', Z_0=0, input_primodiral_gas=None,
+            interp_kind="linear-log", solar_set='Default', Z_0=0, input_primodiral_gas=None,
             ElemNotice=["H", "He", "C", "N", "O", "Ne", "Si", "Mg", "Fe", "Other"], 
             output_dir="./outputs", out_file=None, comments=None):
     """
     Calculate how the abundance evolves with time with variable IMF
 
+    
     Parameters
     ----------
     SFH: dict
@@ -121,7 +120,8 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
         For more details, see MassLifetime.py.
         If not None, the code will use the input hdf5 file that contains the mass-lifetime relation (see MassLifetime.py).
     interp_kind: str, optional
-        The default is "linear-linear", which is the same as in the galIMF.
+        The default is "linear-log", which the same as that of TNG,
+        while the default of galIMF is "linear-linear".
         The kind of interpolation. 
         It should be in ['linear-linear', 'linear-log', 'log-linear', 'log-log', 'nearest', 'TNG-like'].
         The yields of the ith element from AGB and SNcc are a function of the initial metallicity and the mass of the star,
@@ -140,6 +140,8 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
                 This is the same as what is done in TNG simulation.
         linear means Y is linearly interpolated and log means log Z is linearly interpolated.
         For more details, please see the InterpolateYields.py.
+        It is also used to interpolate the mass lifetime relation.
+        Although the mass lifetime relations have weak dependence on Z.
     solar_set: str, optional
         The default is 'Default'.
         It should be in ['Default', 'AG', 'Allen', 'RA', 'Grevesse', 'GS', 'Lodders', 'solar']
@@ -276,7 +278,7 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
     ###### Load the yields tables ######
     files = {key: h5py.File(value, 'r') for key, value in yield_files.items()}
     groups = {key: list(files[key].keys()) for key in files.keys()}
-    if "Z_" in groups['AGB+SNcc'][0]:
+    if "Z_" in groups['AGB+SNcc'][0] or "Z_" in groups['SNIa'][0]:
         # for yields2.h5, the group names cannot contain "." and "_".
         # Therefore their group names are like "Z_0_0001", "Z_0_0003", etc.
         groups_Z = {key: [group.replace("Z_","Z=").replace("_",".") for group in groups[key]] for key in groups.keys()}
@@ -419,12 +421,30 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
                 else:
                     dfs[key][group].loc["Other"] = dfs[key][group].loc[index].sum(axis=0)
                 ElemIntersect[key][group] = list(set(ElemNotice).intersection(set(dfs[key][group].index)))
+                dfs[key][group] = dfs[key][group].loc[ElemIntersect[key][group]]
 
         for key in files.keys():
             for group in groups[key]:
                 if len(set(ElemNotice)-set(ElemIntersect[key][group]))>0:
                     print("The elements you notice but not available in the yield table of %s, %s are\n" %\
                         (key, group), set(ElemNotice)-set(ElemIntersect[key][group]))
+    for key in dfs.keys():
+        for group in dfs[key].keys():
+            if (dfs[key][group]<0).any().any():
+                # Create a boolean mask for negative values
+                mask = dfs[key][group]<0
+                # Find indices and columns where the elements are negative
+                negative_positions = [(index, col) for col in dfs[key][group].columns \
+                                      for index in dfs[key][group].index if mask.at[index, col]]
+                print("Please check the yield file from %s, %s!"%(key, group))
+                print("Indices and Columns of Negative Yields are")
+                print(negative_positions)
+                if interp_kind in ["log-linear", "log-log"]:
+                    print("Since there are some negative yields,")
+                    print("you cannot conduct interpolation in the logarithmic space of the yields.")
+                    print("EXIT!")
+                    sys.exit()
+
     ###### Load the yields tables ######
 
     ###### Load the mass-lifetime relation ######
@@ -440,7 +460,6 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
             lifetime[key1]['lifetime'] = file[key]['MassLifetime'][:,1].astype(float)
         file.close()
     mass_lifetime = MassLifetime(lifetime=lifetime)
-    
     ###### Load the mass-lifetime relation ######
 
     ###### Determine the primordial gas ######
@@ -493,7 +512,7 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
     # mass boundary of each time bin
     dStellarMass = np.zeros(len(SFH['Age']), dtype=np.float64)
     mass_bounds = np.array([constants.Mstar_max]+
-                                [mass_lifetime.lifetime_to_mass(SFH['TimeBin'][0:k+1].sum(), ZGas[0]) \
+                                [mass_lifetime.lifetime_to_mass(SFH['TimeBin'][0:k+1].sum(), ZGas[0], kind=interp_kind) \
                                 for k in range(0, len(SFH['Age'])-1)])
     for j in tqdm(range(0, len(SFH['Age'])-1)):
         # Calculate the mass of ejceta from AGB and SNcc happened in this time bin,
@@ -615,7 +634,6 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
             pass
     else:
         pass
-
     ###### Step 0: Initialize the first age, the primordial gas ######
 
     ###### Step 1: Calculate the remaining ages ######
@@ -646,8 +664,8 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
             Nstar[i] = SFH['Mstar'][i] / quad(lambda m: m*imf(m), constants.Mstar_min, constants.Mstar_max,
                                               epsrel=epsrel, limit=limit, full_output=1)[0]
             mass_bounds = np.array([constants.Mstar_max]+
-                                    [mass_lifetime.lifetime_to_mass(SFH['TimeBin'][i:k+1].sum(), ZGas[i])\
-                                        for k in range(i, len(SFH['Age'])-1)])
+                                    [mass_lifetime.lifetime_to_mass(SFH['TimeBin'][i:k+1].sum(), ZGas[i], kind=interp_kind)\
+                                    for k in range(i, len(SFH['Age'])-1)])
             # If the star formation rate at Age[i] is non-zero, 
             # the stars formed at Age[i] will explode and enrich the gas in the following ages.
             for j in range(i, len(SFH['Age'])-1):
