@@ -136,7 +136,7 @@ def read_results(file_path):
     IMF_type = f["IMF"].attrs["IMF Type"]
     IMF_data = { }
     if IMF_type == "PowerLaw":
-        IMF_data[IMF_type] = f['IMF/PowerLawIndex"'][()]
+        IMF_data[IMF_type] = f['IMF/PowerLawIndex'][()]
     elif IMF_type == "Custom":
         IMF_data[IMF_type] = [ ]
         for key in f['IMF'].keys():

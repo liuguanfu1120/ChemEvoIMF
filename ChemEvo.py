@@ -260,7 +260,7 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
         print("The SFR should be non-negative.")
         print("EXIT!")
         sys.exit()
-    if imf_key in ['PowerLaw', 'Custom'] and (SFH['SFR']>0).sum( ) > imf_num:
+    if imf_key in ['PowerLaw', 'Custom'] and (SFH['SFR']>0).sum( ) > imf_num and imf_num !=1:
         print("The number of IMF functions is less than the number of ages with non-zero SFR.")
         print("EXIT!")
         sys.exit()
@@ -870,6 +870,12 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
                 pass
         elif imf_evolve is None and imf_num<=1:
             f["IMF"].attrs["IMF Type"] = imf_key
+            if imf_key == "PowerLaw":
+                f.create_dataset("IMF/PowerLawIndex", data=imf_value[0])
+            elif imf_key == "Custom":
+                f.create_dataset("IMF/IMF", data=imf_value[0])
+            else:
+                pass
         else:
             # imf_evolve is not None
             f["IMF"].attrs["IMF Type"] = "IMF dependent on metallicity of the gas"

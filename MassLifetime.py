@@ -15,118 +15,116 @@ class MassLifetime:
     To define the MassLifetime class.
     """
     def __init__(self, lifetime=None):
-        if lifetime is None:
-            # If the lifetime is not given, we use the default lifetime.
-            # The following data is taken from Table 14 in Portinari et al. (1998), 
-            # https://ui.adsabs.harvard.edu/abs/1998A&A...334..505P.
-            default_lifetime = { }
-            default_lifetime['Z=0.0004'] = { }
-            # The initial mass, first column in Table 14 in Portinari et al. (1998).
-            default_lifetime['Z=0.0004']['Mini'] = np.array([0.6, 0.7, 0.8, 0.9, 1.0, 1.1,
-                                                          1.2, 1.3, 1.4, 1.5, 1.6, 1.7,
-                                                          1.8, 1.9, 2.0, 2.5, 3.0, 4.0,
-                                                          5.0, 6.0, 7.0, 9.0, 12.0, 15.0,
-                                                          20.0, 30.0, 40.0, 60.0, 100.0, 120.0])
-            # The lifetime of the stars with metallicity Z=0.0004, second column in Table 14 in Portinari et al. (1998).
-            default_lifetime['Z=0.0004']['lifetime'] = np.array([4.28e10, 2.37e10, 1.41e10, 8.97e9, 6.03e9, 4.23e9,
-                                                              3.08e9, 2.34e9, 1.92e9, 1.66e9, 1.39e9, 1.18e9,
-                                                              1.11e9, 9.66e8, 8.33e8, 4.64e8, 3.03e8, 1.61e8,
-                                                              1.01e8, 7.15e7, 5.33e7, 3.42e7, 2.13e7, 1.54e7,
-                                                              1.06e7, 6.90e6, 5.45e6, 4.20e6, 3.32e6, 3.11e6])
-            default_lifetime['Z=0.004'] = { }
-            # The initial mass, first column in Table 14 in Portinari et al. (1998).
-            default_lifetime['Z=0.004']['Mini'] = np.array([0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 
-                                                         1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 
-                                                         1.8, 1.9, 2.0, 2.5, 3.0, 4.0, 
-                                                         5.0, 6.0, 7.0, 9.0, 12.0, 15.0, 
-                                                         20.0, 30.0, 40.0, 60.0, 100.0, 120.0])
-            # The lifetime of the stars with metallicity Z=0.004, third column in Table 14 in Portinari et al. (1998).
-            default_lifetime['Z=0.004']['lifetime'] = np.array([5.35e10, 2.95e10, 1.73e10, 1.09e10, 7.13e9, 4.93e9,
-                                                             3.52e9, 2.64e9, 2.39e9, 1.95e9, 1.63e9, 1.28e9,
-                                                             1.25e9, 1.23e9, 1.08e9, 5.98e8, 3.67e8, 1.82e8,
-                                                             1.11e8, 7.62e7, 5.61e7, 3.51e7, 2.14e7, 1.52e7,
-                                                             1.05e7, 6.85e6, 5.44e6, 4.19e6, 3.38e6, 3.23e6])
+        # Set the default lifetime.
+        # The following data is taken from Table 14 in Portinari et al. (1998), 
+        # https://ui.adsabs.harvard.edu/abs/1998A&A...334..505P.
+        default_lifetime = { }
+        default_lifetime['Z=0.0004'] = { }
+        # The initial mass, first column in Table 14 in Portinari et al. (1998).
+        default_lifetime['Z=0.0004']['Mini'] = np.array([0.6, 0.7, 0.8, 0.9, 1.0, 1.1,
+                                                        1.2, 1.3, 1.4, 1.5, 1.6, 1.7,
+                                                        1.8, 1.9, 2.0, 2.5, 3.0, 4.0,
+                                                        5.0, 6.0, 7.0, 9.0, 12.0, 15.0,
+                                                        20.0, 30.0, 40.0, 60.0, 100.0, 120.0])
+        # The lifetime of the stars with metallicity Z=0.0004, second column in Table 14 in Portinari et al. (1998).
+        default_lifetime['Z=0.0004']['lifetime'] = np.array([4.28e10, 2.37e10, 1.41e10, 8.97e9, 6.03e9, 4.23e9,
+                                                            3.08e9, 2.34e9, 1.92e9, 1.66e9, 1.39e9, 1.18e9,
+                                                            1.11e9, 9.66e8, 8.33e8, 4.64e8, 3.03e8, 1.61e8,
+                                                            1.01e8, 7.15e7, 5.33e7, 3.42e7, 2.13e7, 1.54e7,
+                                                            1.06e7, 6.90e6, 5.45e6, 4.20e6, 3.32e6, 3.11e6])
+        default_lifetime['Z=0.004'] = { }
+        # The initial mass, first column in Table 14 in Portinari et al. (1998).
+        default_lifetime['Z=0.004']['Mini'] = np.array([0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 
+                                                        1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 
+                                                        1.8, 1.9, 2.0, 2.5, 3.0, 4.0, 
+                                                        5.0, 6.0, 7.0, 9.0, 12.0, 15.0, 
+                                                        20.0, 30.0, 40.0, 60.0, 100.0, 120.0])
+        # The lifetime of the stars with metallicity Z=0.004, third column in Table 14 in Portinari et al. (1998).
+        default_lifetime['Z=0.004']['lifetime'] = np.array([5.35e10, 2.95e10, 1.73e10, 1.09e10, 7.13e9, 4.93e9,
+                                                            3.52e9, 2.64e9, 2.39e9, 1.95e9, 1.63e9, 1.28e9,
+                                                            1.25e9, 1.23e9, 1.08e9, 5.98e8, 3.67e8, 1.82e8,
+                                                            1.11e8, 7.62e7, 5.61e7, 3.51e7, 2.14e7, 1.52e7,
+                                                            1.05e7, 6.85e6, 5.44e6, 4.19e6, 3.38e6, 3.23e6])
 
-            default_lifetime['Z=0.008'] = { }
-            # The initial mass, first column in Table 14 in Portinari et al. (1998).
-            default_lifetime['Z=0.008']['Mini'] = np.array([0.6, 0.7, 0.8, 0.9, 1.0, 1.1,
-                                                          1.2, 1.3, 1.4, 1.5, 1.6, 1.7,
-                                                          1.8, 1.9, 2.0, 2.5, 3.0, 4.0,
-                                                          5.0, 6.0, 7.0, 9.0, 12.0, 15.0,
-                                                          20.0, 30.0, 40.0, 60.0, 100.0, 120.0])
-            # The lifetime of the stars with metallicity Z=0.008, fourth column in Table 14 in Portinari et al. (1998).
-            default_lifetime['Z=0.008']['lifetime'] = np.array([6.47e10, 3.54e10, 2.09e10, 1.30e10, 8.46e9, 5.72e9,
-                                                             4.12e9, 2.92e9, 2.36e9, 2.18e9, 1.82e9, 1.58e9,
-                                                             1.41e9, 1.25e9, 1.23e9, 6.86e8, 4.12e8, 1.93e8,
-                                                             1.15e8, 7.71e7, 5.59e7, 3.44e7, 2.10e7, 1.49e7,
-                                                             1.01e7, 6.65e6, 5.30e6, 4.15e6, 3.44e6, 3.32e6])
-            default_lifetime['Z=0.02'] = { }
-            # The initial mass, first column in Table 14 in Portinari et al. (1998).
-            default_lifetime['Z=0.02']['Mini'] = np.array([0.6, 0.7, 0.8, 0.9, 1.0, 1.1,
-                                                          1.2, 1.3, 1.4, 1.5, 1.6, 1.7,
-                                                          1.8, 1.9, 2.0, 2.5, 3.0, 4.0,
-                                                          5.0, 6.0, 7.0, 9.0, 12.0, 15.0,
-                                                          20.0, 30.0, 40.0, 60.0, 100.0, 120.0])
-            # The lifetime of the stars with metallicity Z=0.02, fifth column in Table 14 in Portinari et al. (1998).
-            default_lifetime['Z=0.02']['lifetime'] = np.array([7.92e10, 4.45e10, 2.61e10, 1.59e10, 1.03e10, 6.89e9,
-                                                4.73e9, 3.59e9, 2.87e9, 2.64e9, 2.18e9, 1.84e9, 
-                                                1.59e9, 1.38e9, 1.21e9, 7.64e8, 4.56e8, 2.03e8,
-                                                1.15e8, 7.45e7, 5.31e7, 3.17e7, 1.89e7, 1.33e7,
-                                                9.15e6, 6.13e6, 5.12e6, 4.12e6, 3.39e6, 3.23e6])
-            default_lifetime['Z=0.05'] = { }
-            # The initial mass, first column in Table 14 in Portinari et al. (1998).
-            default_lifetime['Z=0.05']['Mini'] = np.array([0.6, 0.7, 0.8, 0.9, 1.0, 1.1,
-                                                          1.2, 1.3, 1.4, 1.5, 1.6, 1.7,
-                                                          1.8, 1.9, 2.0, 2.5, 3.0, 4.0,
-                                                          5.0, 6.0, 7.0, 9.0, 12.0, 15.0,
-                                                          20.0, 30.0, 40.0, 60.0, 100.0, 120.0])
-            # The lifetime of the stars with metallicity Z=0.05, sixth column in Table 14 in Portinari et al. (1998).
-            default_lifetime['Z=0.05']['lifetime'] = np.array([7.18e10, 4.00e10, 2.33e10, 1.42e10, 8.88e9, 5.95e9,
-                                                4.39e9, 3.37e9, 3.10e9, 2.51e9, 2.06e9, 1.76e9,
-                                                1.51e9, 1.34e9, 1.24e9, 6.58e8, 3.81e8, 1.64e8,
-                                                8.91e7, 5.67e7, 3.97e7, 2.33e7, 1.39e7, 9.95e6,
-                                                6.99e6, 5.15e6, 4.34e6, 3.62e6, 3.11e6, 3.10e6])
+        default_lifetime['Z=0.008'] = { }
+        # The initial mass, first column in Table 14 in Portinari et al. (1998).
+        default_lifetime['Z=0.008']['Mini'] = np.array([0.6, 0.7, 0.8, 0.9, 1.0, 1.1,
+                                                        1.2, 1.3, 1.4, 1.5, 1.6, 1.7,
+                                                        1.8, 1.9, 2.0, 2.5, 3.0, 4.0,
+                                                        5.0, 6.0, 7.0, 9.0, 12.0, 15.0,
+                                                        20.0, 30.0, 40.0, 60.0, 100.0, 120.0])
+        # The lifetime of the stars with metallicity Z=0.008, fourth column in Table 14 in Portinari et al. (1998).
+        default_lifetime['Z=0.008']['lifetime'] = np.array([6.47e10, 3.54e10, 2.09e10, 1.30e10, 8.46e9, 5.72e9,
+                                                            4.12e9, 2.92e9, 2.36e9, 2.18e9, 1.82e9, 1.58e9,
+                                                            1.41e9, 1.25e9, 1.23e9, 6.86e8, 4.12e8, 1.93e8,
+                                                            1.15e8, 7.71e7, 5.59e7, 3.44e7, 2.10e7, 1.49e7,
+                                                            1.01e7, 6.65e6, 5.30e6, 4.15e6, 3.44e6, 3.32e6])
+        default_lifetime['Z=0.02'] = { }
+        # The initial mass, first column in Table 14 in Portinari et al. (1998).
+        default_lifetime['Z=0.02']['Mini'] = np.array([0.6, 0.7, 0.8, 0.9, 1.0, 1.1,
+                                                        1.2, 1.3, 1.4, 1.5, 1.6, 1.7,
+                                                        1.8, 1.9, 2.0, 2.5, 3.0, 4.0,
+                                                        5.0, 6.0, 7.0, 9.0, 12.0, 15.0,
+                                                        20.0, 30.0, 40.0, 60.0, 100.0, 120.0])
+        # The lifetime of the stars with metallicity Z=0.02, fifth column in Table 14 in Portinari et al. (1998).
+        default_lifetime['Z=0.02']['lifetime'] = np.array([7.92e10, 4.45e10, 2.61e10, 1.59e10, 1.03e10, 6.89e9,
+                                            4.73e9, 3.59e9, 2.87e9, 2.64e9, 2.18e9, 1.84e9, 
+                                            1.59e9, 1.38e9, 1.21e9, 7.64e8, 4.56e8, 2.03e8,
+                                            1.15e8, 7.45e7, 5.31e7, 3.17e7, 1.89e7, 1.33e7,
+                                            9.15e6, 6.13e6, 5.12e6, 4.12e6, 3.39e6, 3.23e6])
+        default_lifetime['Z=0.05'] = { }
+        # The initial mass, first column in Table 14 in Portinari et al. (1998).
+        default_lifetime['Z=0.05']['Mini'] = np.array([0.6, 0.7, 0.8, 0.9, 1.0, 1.1,
+                                                        1.2, 1.3, 1.4, 1.5, 1.6, 1.7,
+                                                        1.8, 1.9, 2.0, 2.5, 3.0, 4.0,
+                                                        5.0, 6.0, 7.0, 9.0, 12.0, 15.0,
+                                                        20.0, 30.0, 40.0, 60.0, 100.0, 120.0])
+        # The lifetime of the stars with metallicity Z=0.05, sixth column in Table 14 in Portinari et al. (1998).
+        default_lifetime['Z=0.05']['lifetime'] = np.array([7.18e10, 4.00e10, 2.33e10, 1.42e10, 8.88e9, 5.95e9,
+                                            4.39e9, 3.37e9, 3.10e9, 2.51e9, 2.06e9, 1.76e9,
+                                            1.51e9, 1.34e9, 1.24e9, 6.58e8, 3.81e8, 1.64e8,
+                                            8.91e7, 5.67e7, 3.97e7, 2.33e7, 1.39e7, 9.95e6,
+                                            6.99e6, 5.15e6, 4.34e6, 3.62e6, 3.11e6, 3.10e6])
+        # If the lifetime is given, we use the given lifetime.
+        # The following code is used to check the format of the lifetime.
+        flag = True
+        if not isinstance(lifetime, dict):
+            flag = False
+            print("The lifetime should be a dictionary.")
         else:
-            # If the lifetime is given, we use the given lifetime.
-            # The following code is used to check the format of the lifetime.
-            flag = True
-            if not isinstance(lifetime, dict):
-                flag = False
-                print("The lifetime should be a dictionary.")
-            else:
-                for key in lifetime.keys():
-                    if key[:2] != 'Z=':
-                        flag = False
-                        print("The key of the lifetime dictionary should start with 'Z='.")
-                        break
-                    try:
-                        float(key[2:])
-                    except:
-                        flag = False
-                        print("The metallicity should be a float number.")
-                        break
-                    if not isinstance(lifetime[key], dict):
-                        flag = False
-                        print("The value of the lifetime dictionary should be a dictionary.")
-                        break
-                    if 'Mini' not in lifetime[key].keys():
-                        flag = False
-                        print("The key 'Mini' should be in the dictionary life[%s]."%key)
-                        break
-                    if 'lifetime' not in lifetime[key].keys():
-                        flag = False
-                        print("The key 'lifetime' should be in the dictionary life[%s]."%key)
-                        break
-                    argsort = lifetime[key]['Mini'].argsort()
-                    lifetime[key]['lifetime'] = lifetime[key]['lifetime'][argsort]
-                    lifetime[key]['Mini'] = lifetime[key]['Mini'][argsort]
-                    if (np.diff(lifetime[key]['lifetime'])).all()>0:
-                        # The lifetime of less massive stars should be longer.
-                        continue
-                    else:
-                        flag = False
-                        print("The lifetime of less massive stars should be longer.")
-                        print("Please check the mass lifetime relation of %s" % key)
+            for key in lifetime.keys():
+                if key[:2] != 'Z=':
+                    flag = False
+                    print("The key of the lifetime dictionary should start with 'Z='.")
+                    break
+                try:
+                    float(key[2:])
+                except:
+                    flag = False
+                    print("The metallicity should be a float number.")
+                    break
+                if not isinstance(lifetime[key], dict):
+                    flag = False
+                    print("The value of the lifetime dictionary should be a dictionary.")
+                    break
+                if 'Mini' not in lifetime[key].keys():
+                    flag = False
+                    print("The key 'Mini' should be in the dictionary life[%s]."%key)
+                    break
+                if 'lifetime' not in lifetime[key].keys():
+                    flag = False
+                    print("The key 'lifetime' should be in the dictionary life[%s]."%key)
+                    break
+                argsort = lifetime[key]['Mini'].argsort()
+                lifetime[key]['lifetime'] = lifetime[key]['lifetime'][argsort]
+                lifetime[key]['Mini'] = lifetime[key]['Mini'][argsort]
+                if (np.diff(lifetime[key]['lifetime'])).all()>0:
+                    # The lifetime of less massive stars should be longer.
+                    continue
+                else:
+                    flag = False
+                    print("The lifetime of less massive stars should be longer.")
+                    print("Please check the mass lifetime relation of %s" % key)
 
         if lifetime is None:
             self.lifetime = default_lifetime
@@ -140,7 +138,8 @@ class MassLifetime:
                 self.lifetime = default_lifetime
         self.mass_to_lifetime = np.vectorize(self._mass_to_lifetime, otypes=[np.float64])
         self.lifetime_to_mass = np.vectorize(self._lifetime_to_mass, otypes=[np.float64])
-    
+
+
     def _mass_to_lifetime(self, mass, Z, kind='linear-log'):
         """
         Get the lifetime of the star with a certain mass and a certain metallicity.
