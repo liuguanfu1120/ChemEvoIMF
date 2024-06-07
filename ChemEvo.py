@@ -26,6 +26,7 @@ import h5py
 from tqdm import tqdm
 import datetime
 import os
+import inspect
 # The following are the modules defined in the same directory
 from MassLifetime import MassLifetime
 from IMF import IMF
@@ -73,7 +74,7 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
         The default is None.
         It describes the IMF function evolves with ZGas.
         For example, it could be
-        def imf_evolve(Z_gas):
+        def imf_evolve(Z_gas, age):
             if Z_gas < 0.001:
                 return lambda m: m**(-1.6) if (m>= constants.Mstar_min and m<= constants.Mstar_max) else 0
             else:
@@ -492,7 +493,7 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
     ZGas[0] = GasElement[0, 3:].sum() / GasElement.sum()  # The metallicity of the primordial gas
     StarInitElement[0] = SFH['Mstar'][0] * (GasElement[0]/GasElement[0].sum())
     if imf_evolve is not None:
-        imf1 = imf_evolve(ZGas[0])
+        imf1 = imf_evolve(ZGas[0], SFH['Age'][0])
         # Normalize the IMF
         imf_norm = quad(imf1, constants.Mstar_min, constants.Mstar_max, 
                         epsrel=epsrel, limit=limit, full_output=1)[0]
@@ -652,7 +653,7 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
         dStellarMass = np.zeros(len(SFH['Age']), dtype=np.float64)
         if SFH['Mstar'][i] > 0:
             if imf_evolve is not None:
-                imf1 = imf_evolve(ZGas[i])
+                imf1 = imf_evolve(ZGas[i], SFH['Age'][i])
                 # Normalize the IMF
                 imf_norm = quad(imf1, constants.Mstar_min, constants.Mstar_max, 
                                 epsrel=epsrel, limit=limit, full_output=1)[0]
@@ -878,11 +879,12 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
                 pass
         else:
             # imf_evolve is not None
-            f["IMF"].attrs["IMF Type"] = "IMF dependent on metallicity of the gas"
+            f["IMF"].attrs["IMF Type"] = "IMF dependent on metallicity or age of the gas"
+            f["IMF"].attrs["IMF"] = inspect.getsource(imf_evolve)
             m = np.logspace(np.log10(constants.Mstar_min), np.log10(constants.Mstar_max), 1000)
             for i in range(len(SFH['Age'])-1):
                 if SFH['Mstar'][i]>0:
-                    imf1 = imf_evolve(ZGas[i])
+                    imf1 = imf_evolve(ZGas[i], SFH['Age'][i])
                     # Normalize the IMF
                     imf_norm = quad(imf1, constants.Mstar_min, constants.Mstar_max,
                                     epsrel=epsrel, limit=limit, full_output=1)[0]

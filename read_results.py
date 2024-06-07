@@ -144,6 +144,11 @@ def read_results(file_path):
     elif IMF_type in ['Salpeter', 'Chabrier', 'Kroupa', 'DietSalpeter']:
         IMF_data[IMF_type] = "invariant"
     else:
+        dir = os.path.dirname(file_path)
+        with open(f"{dir}/imf_evolve.py", "w") as f1:
+            f1.write(f["IMF"].attrs["IMF"])
+        print(f"The evolution of the IMF is saved in the file {dir}/imf_evolve.py")
+        print("Please import it by yourself.")
         IMF_data["Function"] =  [ ]
         for key in f['IMF'].keys():
             IMF_data["Function"].append(f['IMF/%s'%key][()])
