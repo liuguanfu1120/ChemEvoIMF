@@ -1,5 +1,9 @@
 # A quick start
 
+- 1. Download the code
+- 2. Run `ChemEvo_example.ipynb`
+- 3. The output file will be saved in `./outputs/`
+- 4. Run `read_results_example.ipynb` to read and analyse the output file
 
 
 
