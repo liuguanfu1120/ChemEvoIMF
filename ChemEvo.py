@@ -1,21 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 Created on May 27, 2024
-Last modified on May 27, 2024
+Last modified on June 12, 2024
 @Author: Guan-Fu Liu
 
-To calculate how the abundance evolves with time with variable IMF
-To reproduce the Figure 10 in Nomoto et al. (2013).
-
-Update: 
-1. Separate utils.py into IMF.py, primordial_gas.py, SupernovaeIa.py, and MassLifetime.py
-2. Interpolate the stellar yields of different initial metallicities.
-3. Add stellar mass
-4. Add SNcc events
-5. Add AGB events
-6. Add the abundances of the ejecta from SNcc
-7. Add the abundances of the ejecta from AGB
-8. Add the abundances of the ejecta from SNIa
+To calculate how the abundance evolves with time with variant or invariant IMF
 """
 import numpy as np
 import pandas as pd
@@ -36,7 +25,7 @@ import constants
 from InterpolateYields import InterpolateYields
 
 def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, p_preset=None, mass_lifetime_file=None,
-            interp_kind="linear-log", solar_set='Default', Z_0=0, input_primodiral_gas=None,
+            interp_kind="linear-log", solar_set='Default', Z_0=0, input_primordial_gas=None,
             ElemNotice=["H", "He", "C", "N", "O", "Ne", "Si", "Mg", "Fe", "Other"], 
             output_dir="./outputs", out_file=None, comments=None):
     """
@@ -152,7 +141,7 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
         The primordial metallicity but without lithium.
         Together with the solar_set, it is used to add the abundances of the primordial gas except for lithium, 
         which obeys the ratio of the corresponding solar set.
-    input_primodiral_gas: numpy array or None
+    input_primordial_gas: numpy array or None
         If it is None, use the default primordial gas from the table II in Cyburt et al. (2016).
         If it is a numpy array, it shuld have a shape of (len(constants.elem_names), ).
         For more details, see the primordial_gas.py.
@@ -473,7 +462,7 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
     mass = SFH['Mtot'] / SFE  # The total mass of the primordial gas in the unit of Msun
     solar_set = "Default"  # The solar abundance set
     pr_gas = pg.Primordial_gas(mass=mass, Z_0=Z_0, 
-                               input_array=input_primodiral_gas
+                               input_array=input_primordial_gas
                                ).add_metals(abund_table=constants.abund_tables[solar_set])
     ###### Determine the primordial gas ######
 
