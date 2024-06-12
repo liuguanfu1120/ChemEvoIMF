@@ -455,6 +455,12 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
         file = h5py.File(mass_lifetime_file, "r")
         lifetime = { }
         for key in file.keys():
+            if 'MassLifetime' not in file[key].keys():
+                # MassLifetime does not exist in the group
+                # Set lifetime to None, i.e., using the default mass-lifetime relation
+                lifetime = None
+                mass_lifetime_file = "None"
+                break
             key1 = key.replace("Z_","Z=").replace("_",".")  # in case it is Z_0_0001, as is the case for yields2.h5
             lifetime[key1] = { }
             lifetime[key1]['Mini'] = file[key]['MassLifetime'][:,0].astype(float)

@@ -104,8 +104,12 @@ def read_results(file_path):
         for key in file.keys():
             key1 = key.replace("Z_","Z=").replace("_",".")  # in case it is Z_0_0001, as is the case for yields2.h5
             lifetime[key1] = { }
-            lifetime[key1]['Mini'] = file[key]['MassLifetime'][:,0].astype(float)
-            lifetime[key1]['lifetime'] = file[key]['MassLifetime'][:,1].astype(float)
+            try:
+                lifetime[key1]['Mini'] = file[key]['MassLifetime'][:,0].astype(float)
+                lifetime[key1]['lifetime'] = file[key]['MassLifetime'][:,1].astype(float)
+            except:
+                lifetime = None
+                break
         file.close()
     mass_lifetime = MassLifetime(lifetime=lifetime)
     ##### Load the mass lifetime relation ######
@@ -145,9 +149,10 @@ def read_results(file_path):
         IMF_data[IMF_type] = "invariant"
     else:
         dir = os.path.dirname(file_path)
-        with open(f"{dir}/imf_evolve.py", "w") as f1:
+        prefix = (file_path.split("/")[-1]).replace(".h5", "")
+        with open(f"{dir}/{prefix}_imf_evolve.py", "w") as f1:
             f1.write(f["IMF"].attrs["IMF"])
-        print(f"The evolution of the IMF is saved in the file {dir}/imf_evolve.py")
+        print(f"The evolution of the IMF is saved in the file {dir}/{prefix}_imf_evolve.py")
         print("Please import it by yourself.")
         IMF_data["Function"] =  [ ]
         for key in f['IMF'].keys():

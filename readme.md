@@ -1,3 +1,9 @@
+# A quick start
+
+
+
+
+
 # Structure of the repository
 
 ## `./inputs/`
