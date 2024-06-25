@@ -121,6 +121,7 @@ def read_results(file_path):
 
     StarInitElement = f['Star/StarInitElement'][()]
     StellarMass = f['Star/StellarMass'][()]
+    StellarElement = f['Star/StellarElement'][()]
     SNccNum = f['Star/SNccNum'][()]
     SNIaNum = f['Star/SNIaNum'][()]
     AGB_Num = f['Star/AGB_Num'][()]
@@ -169,7 +170,7 @@ def read_results(file_path):
     f.close()
 
     return yield_files, groups, ElemNotice, dfs, ElemIntersect, SNIaOn, mass_lifetime_file, mass_lifetime, SFH, StarInitElement,\
-            StellarMass, SNccNum, SNIaNum, AGB_Num, GasElement, ZGas, EjectElement, SNccElement, SNIaElement,\
+            StellarMass, StellarElement, SNccNum, SNIaNum, AGB_Num, GasElement, ZGas, EjectElement, SNccElement, SNIaElement,\
             AGB_Element, YieldsTable, IMF_type, IMF_data, creation_time, SFE, interp_kind, comments, solar_set
 
 

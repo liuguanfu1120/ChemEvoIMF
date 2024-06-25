@@ -55,7 +55,7 @@ elem_names = [
     "Ni",
     "Cu",
     "Zn",
-    "Other"
+    "Metal"
 ]
 
 atomic_weights = np.array(
@@ -141,7 +141,7 @@ abund_tables = {
             1.099e-04,
             1.314e-06,
             3.251e-06,
-            0.0 # The mass ratio of the other elements to H is set to ZERO.
+            2.151e-02 # The mass ratio of all the metals to H.
         ]
     ),
     "AG": np.array(
@@ -177,7 +177,7 @@ abund_tables = {
             1.036e-04,
             1.022e-06,
             2.582e-06,
-            0.0  # The mass ratio of the other elements to H is set to ZERO.
+            2.741e-02  # The mass ratio of all the metals to H.
         ]
     ),
     "Allen": np.array(
@@ -213,7 +213,7 @@ abund_tables = {
             1.162e-04,
             1.994e-06,
             1.028e-06,
-            0.0  # The mass ratio of the other elements to H is set to ZERO.
+            2.235e-02  # The mass ratio of all the metals to H.
         ]
     ),
     "RA": np.array(
@@ -249,7 +249,7 @@ abund_tables = {
             1.110e-04,
             7.239e-07,
             1.828e-06,
-            0.0  # The mass ratio of the other elements to H is set to ZERO.
+            2.264e-02  # The mass ratio of all the metals to H.
         ]
     ),
     "Grevesse": np.array(
@@ -285,7 +285,7 @@ abund_tables = {
             1.036e-04,
             1.022e-06,
             2.582e-06,
-            0.0  # The mass ratio of the other elements to H is set to ZERO.
+            2.445e-02  # The mass ratio of all the metals to H.
         ]
     ),
     "GS": np.array(
@@ -321,7 +321,7 @@ abund_tables = {
             1.036e-04,
             1.229e-06,
             3.034e-06,
-            0.0   # The mass ratio of the other elements to H is set to ZERO.
+            2.293e-02   # The mass ratio of all the metals to H.
         ]
     ),
     "Lodders": np.array(
@@ -357,7 +357,7 @@ abund_tables = {
             1.135e-04,
             1.379e-06,
             3.251e-06,
-            0.0  # The mass ratio of the other elements to H is set to ZERO.
+            2.071e-02  # The mass ratio of all the metals to H.
         ]
     ),
     "solar": np.array(
@@ -393,14 +393,14 @@ abund_tables = {
             9.664e-05,
             1.147e-06,
             2.767e-06,
-            0.0  # The mass ratio of the other elements to H is set to ZERO.
+            1.759e-02  # The mass ratio of all the metals to H.
         ]
     ),
 }
 
 Z_sun = { }
 for key, arr in abund_tables.items():
-    Z_sun[key] = arr[3:].sum() / arr[1:].sum()  # The solar metallicity.
+    Z_sun[key] = arr[3:-1].sum() / arr[1:-1].sum()  # The solar metallicity.
 
 Mstar_min = 0.08  # The minimum mass of a star in solar mass.
 Mstar_max = 150.0  # The maximum mass of a star in solar mass.
@@ -419,8 +419,8 @@ __all__ = [
     'Z_sun',
     'Mstar_min',
     'Mstar_max',
-    # 'SNcc_max',
     'SNcc_min',
+    'SNcc_max',
     'SNIa_min',
     'SNIa_max',
     'AGB_min',

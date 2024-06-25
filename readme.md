@@ -256,8 +256,8 @@ ONLY the dataset `Interpolated` is used in the calculation of chemical evolution
 
 Both the mass range of the IMF and the stellar yield tables is restricted to be $[0.08,150]~M_{\odot}$
 
-   - If the minimum mass $M_{\rm min}$ of the IMF is larger than $0.08~M_{\odot}$, then the IMF in the range $[0.08,M_{\rm min}]~M_{\odot}$ is set to be zero.
-   - As is often the case, the $M_{\rm min}$ in the stellar yield tables is larger than $0.08~M_{\odot}$, so the yield in the range $[0.08, M_{\rm min}]~M_{\odot}$ is set to be zero, and the $M_{\rm max}$ in the stellar yield tables is smaller than $150~M_{\odot}$, so the yield in the range $[M_{\rm max},150]~M_{\odot}$ is set to be the same as that at $M_{\rm max}$. As for the $M_{\rm rem}$, it is set to be $M_{\rm ini}$ in the range $[0.08,M_{\rm min}]~M_{\odot}$ and we keep $M_{\rm ini}-M_{\rm rem}$ a constant in the range $[M_{\rm max},150]~M_{\odot}$.
+   - If the minimum mass $M_{\mathrm{min}}$ of the IMF is larger than $0.08~M_{\odot}$, then the IMF in the range $[0.08,M_{\mathrm{min}}]~M_{\odot}$ is set to be zero.
+   - As is often the case, the $M_{\mathrm{min}}$ in the stellar yield tables is larger than $0.08~M_{\odot}$, so the yield in the range $[0.08, M_{\mathrm{min}}]~M_{\odot}$ is set to be zero, and the $M_{\mathrm{max}}$ in the stellar yield tables is smaller than $150~M_{\odot}$, so the yield in the range $[M_{\mathrm{max}},150]~M_{\odot}$ is set to be the same as that at $M_{\mathrm{max}}$. As for the $M_{\mathrm{rem}}$, it is set to be $M_{\mathrm{ini}}$ in the range $[0.08,M_{\mathrm{min}}]~M_{\odot}$ and we keep $M_{\mathrm{ini}}-M_{\mathrm{rem}}$ a constant in the range $[M_{\mathrm{max}},150]~M_{\odot}$.
    - The number of sampled mass points in the stellar yield tables is often just a few, so we will interpolate the yield tables to get the yield at any mass in the range $[0.08,150]~M_{\odot}$.
 
 ## Solar abundance table

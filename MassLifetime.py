@@ -138,6 +138,7 @@ class MassLifetime:
                 self.lifetime = default_lifetime
         self.mass_to_lifetime = np.vectorize(self._mass_to_lifetime, otypes=[np.float64])
         self.lifetime_to_mass = np.vectorize(self._lifetime_to_mass, otypes=[np.float64])
+        self.flag = flag
 
 
     def _mass_to_lifetime(self, mass, Z, kind='linear-log'):

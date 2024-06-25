@@ -39,7 +39,7 @@ class Primordial_gas:
             Ar, K, Ca, Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, and Zn. Namely, input_array[i] is the ith element mass fraction.
             input_array[len(constants.elem_names)-1]: the mass fraction of the rest elements ((len(constants.elem_names)-1)th and after) 
             in the primordial gas, should be a small number.
-            input_array will be normalized by input_array[1:] = input_array[1:]/input_array[1:].sum().
+            input_array will be normalized by input_array[1:-1] = input_array[1:]/input_array[1:-1].sum().
 
             Z_0==None and input_array==None: use the default primordial gas.
             Z_0!=None and input_array==None: use the default primordial gas but with the pre-set primordial metallicity
@@ -64,8 +64,8 @@ class Primordial_gas:
         ......
         'Zn': float
             The mass of Zn in the primordial gas in the unit of solar mass.
-        'Other': float
-            The mass of the rest elements ((len(constants.elem_names)-1)th and after) in the primordial gas in the unit of solar mass.
+        'Metal': float
+            The mass of all the metals in the primordial gas in the unit of solar mass.
         
         Examples
         --------
@@ -79,7 +79,7 @@ class Primordial_gas:
         'Be': 0.0, 'B': 0.0, 'C': 0.0, 'N': 0.0, 'O': 0.0, 'F': 0.0, 'Ne': 0.0, 'Na': 0.0, 'Mg': 0.0, 
         'Al': 0.0, 'Si': 0.0, 'P': 0.0, 'S': 0.0, 'Cl': 0.0, 'Ar': 0.0, 'K': 0.0, 'Ca': 0.0, 'Sc': 0.0, 
         'Ti': 0.0, 'V': 0.0, 'Cr': 0.0, 'Mn': 0.0, 'Fe': 0.0, 'Co': 0.0, 'Ni': 0.0, 'Cu': 0.0, 'Zn': 0.0, 
-        'Other': 0.0, 'Gas': array([0.00000000e+00, 1.50598495e+03, 4.94015053e+02, 6.99983147e-07,
+        'Metal': 0.0, 'Gas': array([0.00000000e+00, 1.50598495e+03, 4.94015053e+02, 6.99983147e-07,
        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
@@ -139,6 +139,7 @@ class Primordial_gas:
                 self.primor_gas['He'] = self.primor_gas['Y_p'] + self.primor_gas['3He/H']*self.primor_gas['X']
                 self.primor_gas['Li'] = self.primor_gas['7Li/H']*self.primor_gas['X'] + self.primor_gas['6Li/H']*self.primor_gas['X']
                 self.primor_gas['Z'] = self.primor_gas['Z_0'] + self.primor_gas['Li']
+                self.primor_gas['Metal'] = self.primor_gas['Z']
             for key in self.primor_gas.keys():
                 self.primor_gas[key] = self.primor_gas[key] * mass
 
@@ -156,7 +157,9 @@ class Primordial_gas:
                 raise ValueError("The length of the input_array should be %d, but it is not."%len(constants.elem_names))
             # input_array is not None and pre-set, use the input_array as the primordial gas.
             input_array[0] = 0  # The first element should be zero, which is just to make the index start from 1.
-            input_array = input_array/input_array[1:].sum()
+            if input_array[-1] != input_array[3:-1].sum():
+                raise ValueError("The sum of the mass fraction of all the metals should be the last element in the input_array.")
+            input_array = input_array/input_array[1:-1].sum()
             self.primor_gas = { }
             self.primor_gas['Gas'] = np.zeros(len(constants.elem_names))
             for i, elem in enumerate(constants.elem_names[1:]):
@@ -200,15 +203,15 @@ class Primordial_gas:
             return self.primor_gas
         if self.Z_0 is None:
             raise ValueError("The primordial metallicity is should be pre-set, but it is not.")
-        for i, elem in enumerate(constants.elem_names[4:]):
-            self.primor_gas[elem] = abund_table[i+4]/abund_table[4:].sum() * self.primor_gas['Z_0']
+        for i, elem in enumerate(constants.elem_names[4:-1]):
+            self.primor_gas[elem] = abund_table[i+4]/abund_table[4:-1].sum() * self.primor_gas['Z_0']
             # Suppose the composition of the metals except lithium in the primordial gas can be scaled by the solar abundance.
             # Namely, the relative abundance between the metals except is the same as the solar abundance,
             # but the total mass fraction of the metals is Z_0.
             # Such as O/Fe is the same as the solar abundance, but the total mass fraction of the metals is Z_0.
         self.primor_gas.pop('Z_0')  # Remove the primordial metallicity Z_0 without lithium from the dictionary.
         self.primor_gas['Gas'] = np.zeros(len(constants.elem_names))  # The mass of the primordial gas in the unit of solar mass.
-        for i in range(1, len(constants.elem_names)-1):
+        for i in range(1, len(constants.elem_names)):
             self.primor_gas['Gas'][i] = self.primor_gas[constants.elem_names[i]]
             # The index starts from 1, so the first element is ZERO.
         return self.primor_gas

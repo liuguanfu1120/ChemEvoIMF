@@ -26,7 +26,7 @@ from InterpolateYields import InterpolateYields
 
 def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, p_preset=None, mass_lifetime_file=None,
             interp_kind="linear-log", solar_set='Default', Z_0=0, input_primordial_gas=None,
-            ElemNotice=["H", "He", "C", "N", "O", "Ne", "Si", "Mg", "Fe", "Other"], 
+            ElemNotice=["H", "He", "C", "N", "O", "Ne", "Si", "Mg", "Fe", "Metal"], 
             output_dir="./outputs", out_file=None, comments=None):
     """
     Calculate how the abundance evolves with time with variable IMF
@@ -146,10 +146,10 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
         If it is a numpy array, it shuld have a shape of (len(constants.elem_names), ).
         For more details, see the primordial_gas.py.
     ElemNotice: list, optional
-        The default is ["H", "He", "C", "N", "O", "Ne", "Si", "Mg", "Fe", "Other"].
+        The default is ["H", "He", "C", "N", "O", "Ne", "Si", "Mg", "Fe", "Metal"].
         The list of elements that you want to track.
         Please note that
-            1. You should include "H", "He", and "Other" in the list.
+            1. You should include "H", "He", and "Metal" in the list.
                Although the code will check it and add them automatically, it is better to include them.
             2. We only consider the first 30 elements in constants.py, if you need to track the elements 
                beyond the first 30 elements, please modify the constants.py.
@@ -157,7 +157,7 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
                notice them.
             4. If some elements are just available in the SNIa yield tables, you cannot notice them.
                Although the code will remove them automatically, it is better to exclude them.
-            5. The code will add up the elements you do not notice and name it as "Other".
+            5. The code will add up the metal elements and name it as "Metal".
     output_dir: str, optional
         The default is "./outputs".
         The directory to save the output files.
@@ -285,7 +285,7 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
     groups = {key: [groups[key][a] for a in Zyield[key].argsort()] for key in groups.keys()}
     groups_Z = {key: [groups_Z[key][a] for a in Zyield[key].argsort()] for key in groups_Z.keys()}
     # Check the ElemNotice
-    # It should contain H, He and Other.
+    # It should contain H, He and Metal.
     # The finally selected elements are the intersection of ElemNotice and the elements avaliable in the yield table.
     # You may as well not to notice too many elements, which will speed down the calculation.
     if "H" not in ElemNotice:
@@ -296,10 +296,10 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
         print("He should be in ElemNotice!")
         print("Add He to ElemNotice!")
         ElemNotice.append("He")
-    if "Other" not in ElemNotice:
-        print("Other should be in ElemNotice!")
-        print("Add Other to ElemNotice!")
-        ElemNotice.append("Other")
+    if "Metal" not in ElemNotice:
+        print("Metal should be in ElemNotice!")
+        print("Add Metal to ElemNotice!")
+        ElemNotice.append("Metal")
     dfs = { }
     ElemIntersect = { }
     if "Z_" not in groups["AGB+SNcc"][0]:
@@ -314,12 +314,15 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
                 dfs[key][group].loc[:, 'M'] = dfs[key][group].loc[:, 'M'].astype(str)
                 dfs[key][group].set_index('M', inplace=True)
                 index = dfs[key][group].index
-                index = [False if a in ElemNotice + ['Mrem'] else True for a in index]
-                # Add the mass of the elements not in ElemNotice to the "Other" element
-                if "Other" in dfs[key][group].index:
-                    dfs[key][group].loc["Other"] += dfs[key][group].loc[index].sum(axis=0)
+                index = [False if a in ['H', 'He', 'Mrem'] else True for a in index]
+                # Add the mass of the elements not in ElemNotice to the "Metal" element
+                if "Metal" in dfs[key][group].index:
+                    # If you have already add the metals in the yield table to the "Metal" element,
+                    # you should not add them again.
+                    pass
                 else:
-                    dfs[key][group].loc["Other"] = dfs[key][group].loc[index].sum(axis=0)
+                    # Add all the metals to the "Metal" element
+                    dfs[key][group].loc["Metal"] = dfs[key][group].loc[index].sum(axis=0)
                 ElemIntersect[key][group] = list(set(ElemNotice).intersection(set(dfs[key][group].index)))
     else:
         for key in files.keys():
@@ -331,12 +334,15 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
                 else:
                     dfs[key][group] = pd.read_hdf(yield_files["AGB+SNcc"], key="%s/Interpolated"%group)
                 index = dfs[key][group].index
-                index = [False if a in ElemNotice + ['Mrem'] else True for a in index]
-                # Add the mass of the elements not in ElemNotice to the "Other" element
-                if "Other" in dfs[key][group].index:
-                    dfs[key][group].loc["Other"] += dfs[key][group].loc[index].sum(axis=0)
+                index = [False if a in ['H', 'He', 'Mrem'] else True for a in index]
+                # Add the mass of the elements not in ElemNotice to the "Metal" element
+                if "Metal" in dfs[key][group].index:
+                    # If you have already add the metals in the yield table to the "Metal" element,
+                    # you should not add them again.
+                    pass
                 else:
-                    dfs[key][group].loc["Other"] = dfs[key][group].loc[index].sum(axis=0)
+                    # Add all the metals to the "Metal" element
+                    dfs[key][group].loc["Metal"] = dfs[key][group].loc[index].sum(axis=0)
                 ElemIntersect[key][group] = list(set(ElemNotice).intersection(set(dfs[key][group].index)))
     for key in files.keys():
         for group in groups[key]:
@@ -346,7 +352,7 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
     # If one element is only available in part of the metallicity values, you should not notice it.
     # For example, if "C" is only available in Z=0.001 of AGB+SNcc table, 
     # you should not notice "C", namely, you should not include "C" in ElemNotice.
-    # The yields of "C" should be added to "Other".
+    # The yields of "C" should be added to "Metal".
     # It is the same for SNIa table.
     # It is OK if one element is just available in AGB+SNcc table but not in SNIa table,
     # which is the case for "H" and "He".
@@ -380,12 +386,15 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
                 dfs[key][group].loc[:, 'M'] = dfs[key][group].loc[:, 'M'].astype(str)
                 dfs[key][group].set_index('M', inplace=True)
                 index = dfs[key][group].index
-                index = [False if a in ElemNotice + ['Mrem'] else True for a in index]
-                # Add the mass of the elements not in ElemNotice to the "Other" element
-                if "Other" in dfs[key][group].index:
-                    dfs[key][group].loc["Other"] += dfs[key][group].loc[index].sum(axis=0)
+                index = [False if a in ['H', 'He', 'Mrem'] else True for a in index]
+                # Add the mass of the elements not in ElemNotice to the "Metal" element
+                if "Metal" in dfs[key][group].index:
+                    # If you have already add the metals in the yield table to the "Metal" element,
+                    # you should not add them again.
+                    pass
                 else:
-                    dfs[key][group].loc["Other"] = dfs[key][group].loc[index].sum(axis=0)
+                    # Add all the metals to the "Metal" element
+                    dfs[key][group].loc["Metal"] = dfs[key][group].loc[index].sum(axis=0)
                 ElemIntersect[key][group] = list(set(ElemNotice).intersection(set(dfs[key][group].index)))
         for key in files.keys():
             for group in groups[key]:
@@ -404,12 +413,15 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
                 else:
                     dfs[key][group] = pd.read_hdf(yield_files["AGB+SNcc"], key="%s/Interpolated"%group)
                 index = dfs[key][group].index
-                index = [False if a in ElemNotice + ['Mrem'] else True for a in index]
-                # Add the mass of the elements not in ElemNotice to the "Other" element
-                if "Other" in dfs[key][group].index:
-                    dfs[key][group].loc["Other"] += dfs[key][group].loc[index].sum(axis=0)
+                index = [False if a in ['H', 'He', 'Mrem'] else True for a in index]
+                # Add the mass of the elements not in ElemNotice to the "Metal" element
+                if "Metal" in dfs[key][group].index:
+                    # If you have already add the metals in the yield table to the "Metal" element,
+                    # you should not add them again.
+                    pass
                 else:
-                    dfs[key][group].loc["Other"] = dfs[key][group].loc[index].sum(axis=0)
+                    # Add all the metals to the "Metal" element
+                    dfs[key][group].loc["Metal"] = dfs[key][group].loc[index].sum(axis=0)
                 ElemIntersect[key][group] = list(set(ElemNotice).intersection(set(dfs[key][group].index)))
                 dfs[key][group] = dfs[key][group].loc[ElemIntersect[key][group]]
 
@@ -456,6 +468,8 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
             lifetime[key1]['lifetime'] = file[key]['MassLifetime'][:,1].astype(float)
         file.close()
     mass_lifetime = MassLifetime(lifetime=lifetime)
+    if mass_lifetime.flag is False:
+        mass_lifetime_file = "None"
     ###### Load the mass-lifetime relation ######
 
     ###### Determine the primordial gas ######
@@ -485,8 +499,18 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
     ###### Step 0: Initialize the first age, the primordial gas ######
     # The definition of the following variables is can be found in the excel file Variables.xlsx
     GasElement[0] = pr_gas['Gas']
-    ZGas[0] = GasElement[0, 3:].sum() / GasElement.sum()  # The metallicity of the primordial gas
-    StarInitElement[0] = SFH['Mstar'][0] * (GasElement[0]/GasElement[0].sum())
+    ZGas[0] = GasElement[0, constants.elem_names.index("Metal")] / \
+              GasElement[0, [
+                            constants.elem_names.index("H"),
+                            constants.elem_names.index("He"),
+                            constants.elem_names.index("Metal")
+                            ]].sum()  # The metallicity of the primordial gas
+    StarInitElement[0] = SFH['Mstar'][0] * (GasElement[0]/\
+                                            GasElement[0, [
+                                                          constants.elem_names.index("H"),
+                                                          constants.elem_names.index("He"),
+                                                          constants.elem_names.index("Metal")
+                                                          ]].sum())
     if imf_evolve is not None:
         imf1 = imf_evolve(ZGas[0], SFH['Age'][0])
         # Normalize the IMF
@@ -497,6 +521,7 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
     Nstar[0] = SFH['Mstar'][0] / quad(lambda m: m*imf(m), constants.Mstar_min, constants.Mstar_max, 
                                       epsrel=epsrel, limit=limit, full_output=1)[0]
     StellarMass = SFH['Mstar'].cumsum()
+    StellarElement = np.tile(StarInitElement[0], (len(SFH['Age']), 1))
     print("Step 0: Initialize the first age, the primordial gas")
     dEjectElement = np.zeros((len(SFH['Age']), len(constants.abund_tables[solar_set])), dtype=np.float64)
     dSNIaElement = np.zeros((len(SFH['Age']), len(constants.abund_tables[solar_set])), dtype=np.float64)
@@ -584,6 +609,7 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
         dSNIaNum[j] = SNIa.number(SFH['Mstar'][0], SFH['Age'][j]-SFH['Age'][0], SFH['Age'][j+1]-SFH['Age'][0])
 
     StellarMass -= dStellarMass.cumsum()
+    StellarElement -= np.outer(dStellarMass.cumsum(), StarInitElement[0])/SFH['Mstar'][0]
     # The ejected mass of elements from AGB and SNcc, whose progenitor stars formed at Age[0]
     EjectElement += dEjectElement
     # The ejected mass of elements from SNcc, whose progenitor stars formed at Age[0]
@@ -636,7 +662,12 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
     print("Step 1: Calculate the remaining ages")
     for i in tqdm(range(1, len(SFH['Age'])-1)):
         GasElement[i] = GasElement[i-1] + EjectElement[i-1] - StarInitElement[i-1]
-        ZGas[i] = GasElement[i, 3:].sum() / GasElement[i].sum()
+        ZGas[i] = GasElement[i, constants.elem_names.index("Metal")] / \
+                  GasElement[i, [
+                                constants.elem_names.index("H"),
+                                constants.elem_names.index("He"),
+                                constants.elem_names.index("Metal")
+                                ]].sum()
         dEjectElement = np.zeros((len(SFH['Age']), len(constants.abund_tables[solar_set])), dtype=np.float64)
         dEjectElement = np.zeros((len(SFH['Age']), len(constants.abund_tables[solar_set])), dtype=np.float64)
         dSNIaElement = np.zeros((len(SFH['Age']), len(constants.abund_tables[solar_set])), dtype=np.float64)
@@ -656,7 +687,12 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
                 SNIa = SupernovaeIa.SNIa(imf, IMF_type=imf_key, p_preset=p_preset)
             else:
                 pass
-            StarInitElement[i] = SFH['Mstar'][i] * (GasElement[i]/GasElement[i].sum())
+            StarInitElement[i] = SFH['Mstar'][i] * (GasElement[i] / \
+                                                    GasElement[i, [
+                                                                  constants.elem_names.index("H"),
+                                                                  constants.elem_names.index("He"),
+                                                                  constants.elem_names.index("Metal")
+                                                                  ]].sum())
             Nstar[i] = SFH['Mstar'][i] / quad(lambda m: m*imf(m), constants.Mstar_min, constants.Mstar_max,
                                               epsrel=epsrel, limit=limit, full_output=1)[0]
             mass_bounds = np.array([constants.Mstar_max]+
@@ -713,6 +749,8 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
                 dSNIaNum[j] = SNIa.number(SFH['Mstar'][i], SFH['Age'][j]-SFH['Age'][i], SFH['Age'][j+1]-SFH['Age'][i])
 
             StellarMass -= dStellarMass.cumsum()
+            StellarElement[i:] += np.tile(StarInitElement[i], (len(SFH['Age'])-i, 1))
+            StellarElement -= np.outer(dStellarMass.cumsum(), StarInitElement[i])/SFH['Mstar'][i]
             # The ejected mass of elements from AGB and SNcc, whose progenitor stars formed at Age[i].
             EjectElement += dEjectElement
             # The ejected mass of elements from SNcc, whose progenitor stars formed at Age[i].
@@ -768,7 +806,12 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
     # The last age
     GasElement[len(SFH['Age'])-1] = GasElement[len(SFH['Age'])-2] + \
         EjectElement[len(SFH['Age'])-2] - StarInitElement[len(SFH['Age'])-2]
-    ZGas[len(SFH['Age'])-1] = GasElement[len(SFH['Age'])-1, 3:].sum() / GasElement[len(SFH['Age'])-1].sum()
+    ZGas[len(SFH['Age'])-1] = GasElement[len(SFH['Age'])-1, constants.elem_names.index("Metal")] / \
+                              GasElement[len(SFH['Age'])-1, [
+                                                            constants.elem_names.index("H"),
+                                                            constants.elem_names.index("He"),
+                                                            constants.elem_names.index("Metal")
+                                                            ]].sum()
     YieldsTable[len(SFH['Age'])-1,0] = "No Star Formation"
     YieldsTable[len(SFH['Age'])-1,1] = "No Star Formation"
     ###### Step 1: Calculate the remaining ages ######
@@ -784,7 +827,7 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
     # Format the date and time as "YYYY-MM-DD-HH-MM"
     formatted_time = current_time.strftime('%Y-%m-%d-%H-%M')
     if not os.path.exists(output_dir):
-        os.mkdir(output_dir)
+        os.makedirs(output_dir)
     if out_file is None:
         out_file = f"{output_dir}/{formatted_time}.h5"
     else:
@@ -830,6 +873,7 @@ def ChemEvo(SFH, SFE, yield_files, imf_evolve=None, imf_dict=None, SNIaOn=True, 
         f.create_dataset("Star/TimeBin", data=SFH['TimeBin'])
         f.create_dataset("Star/Nstar", data=Nstar)
         f.create_dataset("Star/StellarMass", data=StellarMass)
+        f.create_dataset("Star/StellarElement", data=StellarElement)
 
         f.create_group("Gas")
         f.create_dataset("Gas/GasElement", data=GasElement)
